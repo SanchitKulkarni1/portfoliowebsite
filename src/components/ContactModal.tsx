@@ -79,7 +79,7 @@ export default function ContactModal({ trigger }: ContactModalProps) {
               <Label htmlFor="name">Name</Label>
               <Input
                 id="name"
-                placeholder="Your name"
+                placeholder="Sanchit Kulkarni"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
               />
