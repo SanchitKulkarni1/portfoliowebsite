@@ -133,3 +133,11 @@ def test_full_http_stack_with_real_neo4j(driver):
     assert all(e["type"] == "USES" and e["target"] == "langgraph" for e in chat["edges"])
     assert len(graph["nodes"]) == len(DATASET.nodes)
     assert ready.status_code == 200
+
+
+async def test_role_locations_are_queryable(repository):
+    safe = CypherGuard(max_rows=50).validate(
+        "MATCH (:Person {id: 'sanchit'})-[h:HELD]->(r:Role) WHERE r.location = 'Remote' RETURN r"
+    )
+    result = await repository.run_read(safe)
+    assert {n.id for n in result.subgraph.nodes} == {"role-ascent", "role-tmlc"}

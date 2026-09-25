@@ -31,8 +31,8 @@ NODE_TYPES: tuple[NodeType, ...] = (
     ),
     NodeType(
         "Role",
-        ("start", "end", "employment_type", "summary"),
-        "A job held. `name` is the job title; start/end are 'YYYY-MM' strings, end is 'present' for the current role.",
+        ("start", "end", "employment_type", "location", "summary"),
+        "A job held. `name` is the job title; start/end are 'YYYY-MM' strings, end is 'present' for the current role. location is a city or 'Remote'.",
     ),
     NodeType("Company", ("industry", "location"), "An employer or client organisation."),
     NodeType(

@@ -1,21 +1,21 @@
 {
   "nodes": [
-    {"label": "Person", "id": "sanchit", "name": "Sanchit Kulkarni", "headline": "AI Solutions Architect", "location": "Mumbai, India", "summary": "Designs and ships production AI systems: multi-agent pipelines, RAG, document intelligence, and the backends they run on."},
+    {"label": "Person", "id": "sanchit", "name": "Sanchit Kulkarni", "headline": "AI Solutions Architect", "location": "Bengaluru, India", "summary": "Designs and ships production AI systems: multi-agent pipelines, RAG, document intelligence, and the backends they run on."},
 
     {"label": "Education", "id": "vesit", "name": "Vivekanand Education Society's Institute of Technology (VESIT)", "degree": "B.Tech, Electronics & Computer Science", "start": "2022", "end": "2026", "grade": "CGPA 8.51 / 10"},
 
-    {"label": "Company", "id": "evenflow-brands", "name": "Evenflow Brands", "industry": "B2B commerce", "location": "Mumbai, India"},
+    {"label": "Company", "id": "evenflow-brands", "name": "Evenflow Brands", "industry": "B2B commerce", "location": "Bengaluru, India"},
     {"label": "Company", "id": "ascent-ai", "name": "Ascent AI Solutions (GR2 Engineering)", "industry": "AI engineering services"},
     {"label": "Company", "id": "the-ml-company", "name": "The Machine Learning Company", "industry": "AI/ML services"},
     {"label": "Company", "id": "anand-hospital", "name": "Anand Hospital", "industry": "Healthcare", "location": "Boisar, India"},
     {"label": "Company", "id": "codevertex", "name": "Codevertex", "industry": "Web services"},
     {"label": "Company", "id": "vesit-council", "name": "VESIT Student Council", "industry": "Education"},
 
-    {"label": "Role", "id": "role-evenflow", "name": "AI Solutions Architect", "start": "2026-06", "end": "present", "employment_type": "full-time", "summary": "Architecting core tech infrastructure from scratch for a high-growth B2B company: system architecture, database design and business logic across Ops, Finance, Marketing and Sourcing. Scopes, designs and ships a new production AI system almost daily."},
-    {"label": "Role", "id": "role-ascent", "name": "Backend Engineer (Project-Based)", "start": "2026-04", "end": "2026-05", "employment_type": "contract", "summary": "Built production-grade FastAPI backends for a client engagement: Entra ID authentication, RBAC, PostgreSQL schemas with migrations, gateway-based microservices, centralized logging and secured AWS deployments."},
-    {"label": "Role", "id": "role-tmlc", "name": "AI Engineer Intern", "start": "2025-09", "end": "2026-02", "employment_type": "internship", "summary": "Built and productionized enterprise RAG chatbots, multi-agent orchestrations and tool-use agents; trained, fine-tuned and deployed YOLOv8 models end-to-end, balancing precision against latency."},
+    {"label": "Role", "id": "role-evenflow", "name": "AI Solutions Architect", "start": "2026-06", "end": "present", "employment_type": "full-time", "location": "Bengaluru, India", "summary": "Architecting core tech infrastructure from scratch for a high-growth B2B company: system architecture, database design and business logic across Ops, Finance, Marketing and Sourcing. Scopes, designs and ships a new production AI system almost daily."},
+    {"label": "Role", "id": "role-ascent", "name": "Backend Engineer (Project-Based)", "start": "2026-04", "end": "2026-05", "employment_type": "contract", "location": "Remote", "summary": "Built production-grade FastAPI backends for a client engagement: Entra ID authentication, RBAC, PostgreSQL schemas with migrations, gateway-based microservices, centralized logging and secured AWS deployments."},
+    {"label": "Role", "id": "role-tmlc", "name": "AI Engineer Intern", "start": "2025-09", "end": "2026-02", "employment_type": "internship", "location": "Remote", "summary": "Built and productionized enterprise RAG chatbots, multi-agent orchestrations and tool-use agents; trained, fine-tuned and deployed YOLOv8 models end-to-end, balancing precision against latency."},
     {"label": "Role", "id": "role-freelance", "name": "Freelance Full-Stack & AI Engineer", "employment_type": "freelance", "summary": "Delivers websites and AI systems for clients end-to-end, from requirements to deployment."},
-    {"label": "Role", "id": "role-cultural-secretary", "name": "Deputy Cultural Secretary", "employment_type": "leadership", "summary": "Managed large-scale college events for 5,000+ participants at VESIT."},
+    {"label": "Role", "id": "role-cultural-secretary", "name": "Deputy Cultural Secretary", "employment_type": "leadership", "location": "Mumbai, India", "summary": "Managed large-scale college events for 5,000+ participants at VESIT."},
 
     {"label": "Project", "id": "evenflow-price-intelligence", "name": "Price Intelligence System", "kind": "work", "year": 2026, "summary": "Production system that scrapes and tracks marketplace prices to support pricing decisions."},
     {"label": "Project", "id": "evenflow-debit-note-validation", "name": "Debit Note Validation", "kind": "work", "year": 2026, "summary": "AI system that validates debit notes for the finance team, replacing manual checks."},
