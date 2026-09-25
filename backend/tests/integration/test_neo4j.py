@@ -161,3 +161,27 @@ async def test_exported_cypher_script_builds_the_same_graph(driver, repository):
     exported = await repository.fetch_snapshot()
     assert sorted(exported.nodes, key=lambda n: n.id) == sorted(seeded.nodes, key=lambda n: n.id)
     assert sorted(e.id for e in exported.edges) == sorted(e.id for e in seeded.edges)
+
+
+@pytest.mark.skipif(not os.getenv("NEO4J_TEST_HTTP_URL"), reason="set NEO4J_TEST_HTTP_URL to test the Query API seeder")
+async def test_http_seeder_builds_the_same_graph(driver, repository):
+    from app.infrastructure.neo4j_http_seeder import Neo4jHttpSeeder
+
+    await Neo4jSeeder(driver, database="neo4j").replace_graph(DATASET)
+    seeded = await repository.fetch_snapshot()
+
+    summary = await Neo4jHttpSeeder(
+        base_url=os.environ["NEO4J_TEST_HTTP_URL"], database="neo4j", user=USER, password=PASSWORD
+    ).replace_graph(DATASET)
+
+    assert (summary.nodes, summary.relationships) == (len(DATASET.nodes), len(DATASET.relationships))
+    exported = await repository.fetch_snapshot()
+    assert sorted(exported.nodes, key=lambda n: n.id) == sorted(seeded.nodes, key=lambda n: n.id)
+    assert sorted(e.id for e in exported.edges) == sorted(e.id for e in seeded.edges)
+
+
+def test_query_api_url_is_derived_from_the_bolt_uri():
+    from app.infrastructure.neo4j_http_seeder import query_api_base_url
+
+    assert query_api_base_url("neo4j+s://5267a9c8.databases.neo4j.io") == "https://5267a9c8.databases.neo4j.io"
+    assert query_api_base_url("bolt://127.0.0.1:7687") == "http://127.0.0.1:7474"
