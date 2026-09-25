@@ -155,6 +155,8 @@ Tests enforce that every skill is backed by at least one project or role, and th
 
 To change the graph: edit the JSON, run `python -m scripts.seed --dry-run` to validate it, then `python -m scripts.seed` to load it. The load replaces the database contents and is safe to re-run.
 
+Can't run Python against the database, for example because a firewall blocks port 7687? Run `python -m scripts.export_cypher > seed.cypher` and paste the file into the Aura console's **Query** tab. An integration test checks that it builds exactly the same graph as `scripts.seed`.
+
 ## Run locally
 
 ```bash

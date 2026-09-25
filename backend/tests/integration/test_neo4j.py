@@ -141,3 +141,23 @@ async def test_role_locations_are_queryable(repository):
     )
     result = await repository.run_read(safe)
     assert {n.id for n in result.subgraph.nodes} == {"role-ascent", "role-tmlc"}
+
+
+async def test_exported_cypher_script_builds_the_same_graph(driver, repository):
+    """scripts/export_cypher.py output (for pasting into the Aura console) must equal the seeder's result."""
+    from scripts.export_cypher import to_cypher
+
+    await Neo4jSeeder(driver, database="neo4j").replace_graph(DATASET)
+    seeded = await repository.fetch_snapshot()
+
+    script = to_cypher(DATASET)
+    statements = [s.strip() for s in script.split(";\n") if s.strip() and not s.strip().startswith("//")]
+    for statement in statements:
+        body = "\n".join(line for line in statement.splitlines() if not line.startswith("//"))
+        records, _, _ = await driver.execute_query(body)
+    assert records[0]["nodes"] == len(DATASET.nodes)
+    assert records[0]["relationships"] == len(DATASET.relationships)
+
+    exported = await repository.fetch_snapshot()
+    assert sorted(exported.nodes, key=lambda n: n.id) == sorted(seeded.nodes, key=lambda n: n.id)
+    assert sorted(e.id for e in exported.edges) == sorted(e.id for e in seeded.edges)
