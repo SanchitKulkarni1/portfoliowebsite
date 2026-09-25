@@ -116,7 +116,7 @@ Every non-2xx response uses one envelope:
 |---|---|
 | 422 | `invalid_request` |
 | 429 | `rate_limited` (with a `Retry-After` header) |
-| 503 | `llm_unavailable`, `graph_unavailable` |
+| 503 | `llm_busy` (Gemini quota/overload; `Retry-After: 30`), `llm_unavailable`, `graph_unavailable` |
 | 404 / 405 | `not_found` / `method_not_allowed` |
 
 ## Safety model
@@ -134,6 +134,7 @@ The API runs LLM-written queries against a live database, so it has two independ
 
 On top of that:
 - Rate limiting per client IP (default 10 questions / 10 min).
+- An in-memory answer cache (1 hour, 500 entries). Repeat questions, such as the suggested prompts, cost no LLM quota. Failed answers are never cached.
 - A 300-character cap on questions.
 - CORS restricted to known origins.
 - The answer prompt treats query results as data, not instructions.
@@ -193,5 +194,7 @@ Unit tests replace the two ports with in-memory fakes (`tests/fakes.py`). Integr
 2. Set the secrets: `NEO4J_URI`, `NEO4J_PASSWORD`, `GOOGLE_API_KEY`.
 3. Set `ALLOWED_ORIGINS` to the portfolio's real URL.
 4. Seed Aura once from your machine: `python -m scripts.seed`.
+
+**LLM quota.** The default model is `gemini-3.5-flash-lite`, which allows 15 requests/min on Gemini's free tier. Each question costs 2 LLM calls, or 0 when it's served from cache, so that's roughly 7 new questions a minute across the whole site. `gemini-2.5-flash` only allows 5/min. For real traffic, enable billing on the Google AI project; paid-tier limits are far higher and flash-lite costs fractions of a cent per question. `GEMINI_MODEL` overrides the model.
 
 Render's free tier sleeps after inactivity. A UI should call `/health` on page load to wake the service before the first question. The rate limiter is in-memory, which is fine on one instance; move it to Redis if you scale out.

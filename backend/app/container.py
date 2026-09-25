@@ -7,6 +7,7 @@ from app.api.state import Container
 from app.config import Settings
 from app.infrastructure.gemini_model import GeminiLanguageModel
 from app.infrastructure.neo4j_repository import Neo4jGraphRepository, create_driver
+from app.services.answer_cache import AnswerCache
 from app.services.chat_service import ChatService, ChatSettings
 from app.services.cypher_guard import CypherGuard
 from app.services.graph_service import GraphService
@@ -42,6 +43,7 @@ async def build_container(settings: Settings) -> Container:
             repository,
             CypherGuard(max_rows=settings.max_result_rows),
             ChatSettings(max_answer_rows=settings.max_result_rows),
+            AnswerCache(max_entries=settings.chat_cache_max_entries, ttl_seconds=settings.chat_cache_ttl_seconds),
         ),
         graph_service=GraphService(repository, snapshot_ttl_seconds=settings.graph_snapshot_ttl_seconds),
         chat_rate_limiter=build_rate_limiter(settings),

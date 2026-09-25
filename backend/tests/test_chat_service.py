@@ -112,3 +112,35 @@ async def test_llm_outage_propagates():
     llm = FakeLanguageModel([LanguageModelError("down")])
     with pytest.raises(LanguageModelError):
         await make_service(llm, FakeGraphRepository()).ask("q")
+
+
+async def test_repeat_question_is_served_from_cache():
+    from app.services.answer_cache import AnswerCache
+
+    llm = FakeLanguageModel([QUERY, "Sanchit built gitEQ."])
+    repo = FakeGraphRepository([RESULT])
+    service = ChatService(llm, repo, CypherGuard(max_rows=50), cache=AnswerCache(max_entries=10, ttl_seconds=60))
+
+    first = await service.ask("Tell me about gitEQ")
+    second = await service.ask("tell me about gitEQ?")
+
+    assert second == first
+    assert len(llm.calls) == 2  # no LLM calls for the repeat
+    assert len(repo.executed) == 1
+
+
+async def test_failed_answers_are_not_cached():
+    from app.services.answer_cache import AnswerCache
+
+    llm = FakeLanguageModel([QUERY, QUERY, QUERY, "ok"])
+    repo = FakeGraphRepository([QueryExecutionError("bad"), QueryExecutionError("bad"), RESULT])
+    service = ChatService(
+        llm,
+        repo,
+        CypherGuard(max_rows=50),
+        ChatSettings(max_repair_attempts=1),
+        AnswerCache(max_entries=10, ttl_seconds=60),
+    )
+
+    assert (await service.ask("q")).status is ChatStatus.FAILED
+    assert (await service.ask("q")).status is ChatStatus.ANSWERED

@@ -5,7 +5,7 @@ from fastapi.testclient import TestClient
 
 from app.config import Settings
 from app.container import Container, build_rate_limiter
-from app.domain.errors import GraphUnavailableError, LanguageModelError
+from app.domain.errors import GraphUnavailableError, LanguageModelBusyError, LanguageModelError
 from app.domain.models import GraphEdge, GraphNode, QueryResult, Subgraph
 from app.main import create_app
 from app.services.chat_service import ChatService
@@ -113,6 +113,14 @@ def test_llm_outage_maps_to_503():
     assert response.status_code == 503
     assert response.json()["error"]["code"] == "llm_unavailable"
     assert "down" not in response.text  # internal details are not leaked
+
+
+def test_llm_quota_exhaustion_maps_to_busy_with_retry_after():
+    with client_for(FakeLanguageModel([LanguageModelBusyError("429 quota")]), FakeGraphRepository()) as client:
+        response = client.post("/api/v1/chat", json={"question": "hi"})
+    assert response.status_code == 503
+    assert response.json()["error"]["code"] == "llm_busy"
+    assert response.headers["Retry-After"] == "30"
 
 
 def test_graph_outage_maps_to_503():

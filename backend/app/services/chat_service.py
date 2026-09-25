@@ -10,6 +10,7 @@ from app.domain.errors import QueryExecutionError, QueryTimeoutError, UnsafeQuer
 from app.domain.models import ChatAnswer, ChatStatus, QueryResult, SafeCypher
 from app.domain.ports import GraphRepository, LanguageModel
 from app.services import prompts
+from app.services.answer_cache import AnswerCache
 from app.services.cypher_guard import CypherGuard
 
 logger = logging.getLogger(__name__)
@@ -22,6 +23,9 @@ REFUSED_REPLY = "I can't run that. This assistant only reads Sanchit's career gr
 NO_RESULTS_REPLY = "I couldn't find anything in Sanchit's career graph that matches that question."
 FAILED_REPLY = "Sorry, I couldn't work out how to answer that from the graph. Try rephrasing the question."
 TIMEOUT_REPLY = "That question took too long to answer from the graph. Try something more specific."
+
+# Outcomes that will be the same next time. FAILED ones might succeed on a retry, so they aren't cached.
+_CACHEABLE = frozenset({ChatStatus.ANSWERED, ChatStatus.NO_RESULTS, ChatStatus.OFF_TOPIC, ChatStatus.REFUSED})
 
 
 @dataclass(frozen=True)
@@ -38,18 +42,24 @@ class ChatService:
         repository: GraphRepository,
         guard: CypherGuard,
         settings: ChatSettings = ChatSettings(),
+        cache: AnswerCache | None = None,
     ) -> None:
         self._llm = llm
         self._repository = repository
         self._guard = guard
         self._settings = settings
+        self._cache = cache
 
     async def ask(self, question: str) -> ChatAnswer:
         started = time.perf_counter()
-        answer = await self._answer(question)
+        cached = self._cache.get(question) if self._cache else None
+        answer = cached or await self._answer(question)
+        if self._cache and not cached and answer.status in _CACHEABLE:
+            self._cache.put(question, answer)
         logger.info(
-            "chat status=%s latency_ms=%d cypher=%r",
+            "chat status=%s cached=%s latency_ms=%d cypher=%r",
             answer.status.value,
+            cached is not None,
             (time.perf_counter() - started) * 1000,
             answer.cypher,
         )

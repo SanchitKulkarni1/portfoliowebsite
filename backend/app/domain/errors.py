@@ -25,5 +25,9 @@ class LanguageModelError(CareerGraphError):
     """The LLM provider failed or returned an unusable response."""
 
 
+class LanguageModelBusyError(LanguageModelError):
+    """The LLM provider is rate-limiting or overloaded. Retrying shortly should work."""
+
+
 class InvalidCareerDataError(CareerGraphError):
     """Seed data does not conform to the graph schema."""

@@ -10,7 +10,9 @@ from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException
 
 from app.api.schemas import ErrorBody, ErrorResponse
-from app.domain.errors import CareerGraphError, GraphUnavailableError, LanguageModelError
+from app.domain.errors import CareerGraphError, GraphUnavailableError, LanguageModelBusyError, LanguageModelError
+
+LLM_BUSY_RETRY_AFTER_SECONDS = 30
 
 logger = logging.getLogger(__name__)
 
@@ -38,6 +40,16 @@ def register_exception_handlers(app: FastAPI) -> None:
     async def _http(_: Request, exc: HTTPException) -> JSONResponse:
         code = _HTTP_CODES.get(exc.status_code, "http_error")
         return _error(exc.status_code, code, str(exc.detail), exc.headers)
+
+    @app.exception_handler(LanguageModelBusyError)
+    async def _llm_busy(_: Request, exc: LanguageModelBusyError) -> JSONResponse:
+        logger.warning("LLM busy: %s", exc)
+        return _error(
+            503,
+            "llm_busy",
+            "The assistant is getting a lot of questions right now. Please try again in a minute.",
+            {"Retry-After": str(LLM_BUSY_RETRY_AFTER_SECONDS)},
+        )
 
     @app.exception_handler(LanguageModelError)
     async def _llm(_: Request, exc: LanguageModelError) -> JSONResponse:
