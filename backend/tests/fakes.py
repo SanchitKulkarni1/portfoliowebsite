@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import AsyncIterator
 from dataclasses import dataclass, field
 
 from app.domain.models import QueryResult, SafeCypher, Subgraph
@@ -20,6 +21,12 @@ class FakeLanguageModel:
         if isinstance(response, Exception):
             raise response
         return response
+
+    async def stream(self, *, system: str, prompt: str) -> AsyncIterator[str]:
+        """Streams the next scripted completion word by word."""
+        text = await self.complete(system=system, prompt=prompt)
+        for i, word in enumerate(text.split(" ")):
+            yield word if i == 0 else " " + word
 
 
 @dataclass

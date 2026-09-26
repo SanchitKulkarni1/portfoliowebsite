@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+from collections.abc import AsyncIterator
 
 from google import genai
 from google.genai import errors as genai_errors
@@ -38,21 +39,55 @@ class GeminiLanguageModel:
             await asyncio.sleep(_RETRY_DELAY_SECONDS)
             return await self._generate(system, prompt)
 
+    async def stream(self, *, system: str, prompt: str) -> AsyncIterator[str]:
+        # Same retry policy as complete(), but only while nothing has been sent on:
+        # once text has streamed to the client, a retry would repeat it.
+        for attempt in range(2):
+            started = False
+            try:
+                async for text in self._generate_stream(system, prompt):
+                    started = True
+                    yield text
+                if not started:
+                    raise LanguageModelError("Gemini returned an empty response.")
+                return
+            except LanguageModelBusyError:
+                raise
+            except LanguageModelError as exc:
+                if started or attempt == 1:
+                    raise
+                logger.warning("Gemini stream failed before any text, retrying once: %s", exc)
+                await asyncio.sleep(_RETRY_DELAY_SECONDS)
+
+    def _config(self, system: str) -> types.GenerateContentConfig:
+        return types.GenerateContentConfig(
+            system_instruction=system,
+            temperature=self._temperature,
+            automatic_function_calling=types.AutomaticFunctionCallingConfig(disable=True),
+        )
+
+    async def _generate_stream(self, system: str, prompt: str) -> AsyncIterator[str]:
+        try:
+            chunks = await self._client.aio.models.generate_content_stream(
+                model=self._model, contents=prompt, config=self._config(system)
+            )
+            async for chunk in chunks:
+                if chunk.text:
+                    yield chunk.text
+        except genai_errors.APIError as exc:
+            raise _translate(exc) from exc
+        except LanguageModelError:
+            raise
+        except Exception as exc:  # transport errors, timeouts
+            raise LanguageModelError(f"Gemini stream failed: {exc}") from exc
+
     async def _generate(self, system: str, prompt: str) -> str:
         try:
             response = await self._client.aio.models.generate_content(
-                model=self._model,
-                contents=prompt,
-                config=types.GenerateContentConfig(
-                    system_instruction=system,
-                    temperature=self._temperature,
-                    automatic_function_calling=types.AutomaticFunctionCallingConfig(disable=True),
-                ),
+                model=self._model, contents=prompt, config=self._config(system)
             )
         except genai_errors.APIError as exc:
-            if exc.code in _BUSY_STATUS_CODES:
-                raise LanguageModelBusyError(f"Gemini is busy ({exc.code}): {exc.message}") from exc
-            raise LanguageModelError(f"Gemini request failed: {exc}") from exc
+            raise _translate(exc) from exc
         except Exception as exc:  # transport errors, timeouts
             raise LanguageModelError(f"Gemini request failed: {exc}") from exc
         text = response.text
@@ -62,3 +97,9 @@ class GeminiLanguageModel:
 
     async def aclose(self) -> None:
         await self._client.aio.aclose()
+
+
+def _translate(exc: genai_errors.APIError) -> LanguageModelError:
+    if exc.code in _BUSY_STATUS_CODES:
+        return LanguageModelBusyError(f"Gemini is busy ({exc.code}): {exc.message}")
+    return LanguageModelError(f"Gemini request failed: {exc}")

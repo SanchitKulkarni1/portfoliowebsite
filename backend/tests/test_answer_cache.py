@@ -43,3 +43,14 @@ def test_zero_ttl_disables_caching():
     cache = AnswerCache(max_entries=10, ttl_seconds=0)
     cache.put("q", ANSWER)
     assert cache.get("q") is None
+
+
+def test_pinned_entries_never_expire_or_get_evicted():
+    clock = Clock()
+    cache = AnswerCache(max_entries=1, ttl_seconds=60, clock=clock)
+    cache.put("Which projects use LangGraph?", ANSWER, pinned=True)
+    cache.put("a", ANSWER)
+    cache.put("b", ANSWER)  # evicts "a", not the pinned entry
+    clock.now = 10_000
+    assert cache.get("which projects use langgraph") is ANSWER
+    assert cache.get("a") is None

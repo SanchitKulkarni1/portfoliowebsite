@@ -3,6 +3,7 @@ tests substitute fakes. Nothing here knows about Neo4j or Gemini."""
 
 from __future__ import annotations
 
+from collections.abc import AsyncIterator
 from typing import Protocol
 
 from app.domain.models import QueryResult, SafeCypher, Subgraph
@@ -25,4 +26,8 @@ class GraphRepository(Protocol):
 class LanguageModel(Protocol):
     async def complete(self, *, system: str, prompt: str) -> str:
         """Return the model's text completion. Raises LanguageModelError on failure."""
+        ...
+
+    def stream(self, *, system: str, prompt: str) -> AsyncIterator[str]:
+        """Yield the completion in chunks as they are generated. Raises LanguageModelError on failure."""
         ...

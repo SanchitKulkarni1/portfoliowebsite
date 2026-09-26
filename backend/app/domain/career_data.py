@@ -97,3 +97,11 @@ def parse_career_data(raw: dict[str, Any]) -> CareerDataset:
     if errors:
         raise InvalidCareerDataError("Invalid career data:\n  " + "\n  ".join(errors))
     return CareerDataset(tuple(nodes), tuple(relationships))
+
+
+def load_suggested_questions(path: Path) -> tuple[str, ...]:
+    """The starter questions shown as chips in the UI (data/suggested_questions.json)."""
+    raw = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(raw, list) or not all(isinstance(q, str) and q.strip() for q in raw):
+        raise InvalidCareerDataError(f"{path.name} must be a JSON list of non-empty strings")
+    return tuple(q.strip() for q in raw)
