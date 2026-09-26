@@ -68,8 +68,9 @@ export default {
 					}
 				},
 				fontFamily: {
-					sans: ["Inter", "ui-sans-serif", "system-ui", "-apple-system", "Segoe UI", "Roboto", "Ubuntu", "Cantarell", "Noto Sans", "sans-serif"],
-					display: ["Space Grotesk", "Inter", "ui-sans-serif", "system-ui", "sans-serif"]
+					sans: ["Inter", "ui-sans-serif", "system-ui", "-apple-system", "Segoe UI", "Roboto", "sans-serif"],
+					display: ["Fira Code", "ui-monospace", "SFMono-Regular", "Menlo", "monospace"],
+					mono: ["Fira Code", "ui-monospace", "SFMono-Regular", "Menlo", "monospace"]
 				},
 				borderRadius: {
 					lg: 'var(--radius)',
@@ -108,6 +109,14 @@ export default {
 					'slide-out-right': {
 						'0%': { transform: 'translateX(0)' },
 						'100%': { transform: 'translateX(100%)' }
+					},
+					'blink': {
+						'0%, 100%': { opacity: '1' },
+						'50%': { opacity: '0' }
+					},
+					'marquee': {
+						from: { transform: 'translateX(0)' },
+						to: { transform: 'translateX(-50%)' }
 					}
 				},
 				animation: {
@@ -120,7 +129,9 @@ export default {
 					'slide-in-right': 'slide-in-right 0.3s ease-out',
 					'slide-out-right': 'slide-out-right 0.3s ease-out',
 					'enter': 'fade-in 0.3s ease-out, scale-in 0.2s ease-out',
-					'exit': 'fade-out 0.3s ease-out, scale-out 0.2s ease-out'
+					'exit': 'fade-out 0.3s ease-out, scale-out 0.2s ease-out',
+					'blink': 'blink 1s step-end infinite',
+					'marquee': 'marquee 45s linear infinite'
 				}
 			}
 	},

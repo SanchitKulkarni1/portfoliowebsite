@@ -16,6 +16,8 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      // The career graph dataset is shared with the backend (single source of truth).
+      "@data": path.resolve(__dirname, "./backend/data"),
     },
   },
 }));
