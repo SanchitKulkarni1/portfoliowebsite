@@ -8,7 +8,7 @@ export function Contact() {
   const links = [
     { label: "GitHub", href: profile.links.github, icon: Github },
     { label: "LinkedIn", href: profile.links.linkedin, icon: Linkedin },
-    { label: "Résumé", href: profile.resumeUrl, icon: FileText },
+    ...(profile.resumeUrl ? [{ label: "Résumé", href: profile.resumeUrl, icon: FileText }] : []),
   ];
 
   return (

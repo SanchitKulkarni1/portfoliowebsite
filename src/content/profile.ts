@@ -7,7 +7,8 @@ export const profile = {
   tagline: "I design and ship production AI systems, and the backends they run on.",
   location: "Bengaluru, India",
   email: "sanchit.kulkarni2004@gmail.com",
-  resumeUrl: "/Sanchit_Kulkarni_Resume.pdf",
+  /** Google Drive link to the résumé. Résumé buttons stay hidden until this is set. */
+  resumeUrl: null as string | null,
   photo: "/images/sanchit-portrait.webp",
   links: {
     github: "https://github.com/SanchitKulkarni1",

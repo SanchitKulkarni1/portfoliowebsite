@@ -43,14 +43,16 @@ export function Hero() {
           >
             Read the story
           </a>
-          <a
-            href={profile.resumeUrl}
-            target="_blank"
-            rel="noreferrer"
-            className="rounded-full border border-white/15 px-5 py-2.5 font-semibold transition-colors hover:border-white/40"
-          >
-            Résumé
-          </a>
+          {profile.resumeUrl && (
+            <a
+              href={profile.resumeUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="rounded-full border border-white/15 px-5 py-2.5 font-semibold transition-colors hover:border-white/40"
+            >
+              Résumé
+            </a>
+          )}
           <span className="flex items-center gap-3 pl-1 text-neutral-400">
             <a href={profile.links.github} target="_blank" rel="noreferrer" aria-label="GitHub" className="hover:text-white">
               <Github className="h-5 w-5" />
