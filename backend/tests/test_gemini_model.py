@@ -45,3 +45,44 @@ async def test_quota_errors_are_not_retried(monkeypatch, model):
     with pytest.raises(LanguageModelBusyError):
         await model.complete(system="s", prompt="p")
     assert len(calls) == 1
+
+
+def script_stream(monkeypatch, model, attempts):
+    """Each attempt is a list of chunks, optionally ending in an exception raised after them."""
+    calls = []
+
+    async def fake_stream(system, prompt):
+        calls.append(prompt)
+        for item in attempts.pop(0):
+            if isinstance(item, Exception):
+                raise item
+            yield item
+
+    monkeypatch.setattr(model, "_generate_stream", fake_stream)
+    return calls
+
+
+async def collect(model):
+    return [chunk async for chunk in model.stream(system="s", prompt="p")]
+
+
+async def test_stream_retries_a_failure_before_any_text(monkeypatch, model):
+    calls = script_stream(monkeypatch, model, [[LanguageModelError("500")], ["Hel", "lo"]])
+    assert await collect(model) == ["Hel", "lo"]
+    assert len(calls) == 2
+
+
+async def test_stream_does_not_retry_after_text_was_sent(monkeypatch, model):
+    calls = script_stream(monkeypatch, model, [["Hel", LanguageModelError("500")], ["never"]])
+    chunks = []
+    with pytest.raises(LanguageModelError):
+        async for chunk in model.stream(system="s", prompt="p"):
+            chunks.append(chunk)
+    assert chunks == ["Hel"]
+    assert len(calls) == 1
+
+
+async def test_empty_stream_is_an_error(monkeypatch, model):
+    script_stream(monkeypatch, model, [[], []])
+    with pytest.raises(LanguageModelError, match="empty"):
+        await collect(model)

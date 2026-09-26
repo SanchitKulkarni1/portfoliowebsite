@@ -1,5 +1,7 @@
 """HTTP contract tests: the whole FastAPI stack with the ports replaced by fakes."""
 
+import json
+
 import pytest
 from fastapi.testclient import TestClient
 
@@ -85,6 +87,8 @@ def test_chat_contract():
     assert [n["id"] for n in body["nodes"]] == ["sanchit", "giteq"]
     assert body["edges"][0]["id"] == "sanchit-BUILT-giteq"
     assert llm.calls[0][1] == "Question: What did you build?\nCypher:"  # whitespace normalised
+    stages = [part.split(";")[0] for part in response.headers["server-timing"].split(", ")]
+    assert stages == ["cache", "llm_cypher", "db", "llm_answer"]
 
 
 @pytest.mark.parametrize(
@@ -182,3 +186,46 @@ def test_cors_allows_origins_matching_the_regex():
     assert allowed.headers["access-control-allow-origin"] == preview
     assert listed.status_code == 200
     assert lookalike.status_code == 400
+
+
+def sse_events(text: str) -> list[tuple[str, dict]]:
+    events = []
+    for frame in text.strip().split("\n\n"):
+        fields = dict(line.split(": ", 1) for line in frame.splitlines())
+        events.append((fields["event"], json.loads(fields["data"])))
+    return events
+
+
+def test_chat_stream_sends_meta_then_text_then_done():
+    llm = FakeLanguageModel(["MATCH (me:Person)-[b:BUILT]->(p:Project) RETURN me, b, p", "Sanchit built gitEQ."])
+    repo = FakeGraphRepository([QueryResult(({"p": {"name": "gitEQ"}},), SUBGRAPH)])
+    with client_for(llm, repo) as client:
+        response = client.post("/api/v1/chat/stream", json={"question": "What did you build?"})
+
+    assert response.status_code == 200
+    assert response.headers["content-type"].startswith("text/event-stream")
+    events = sse_events(response.text)
+    kinds = [kind for kind, _ in events]
+    assert kinds[0] == "meta" and kinds[-1] == "done" and set(kinds[1:-1]) == {"delta"}
+    meta = events[0][1]
+    assert meta["status"] == "answered" and "answer" not in meta
+    assert [n["id"] for n in meta["nodes"]] == ["sanchit", "giteq"]
+    assert "".join(data["text"] for kind, data in events if kind == "delta") == "Sanchit built gitEQ."
+    assert events[-1][1] == {"answer": "Sanchit built gitEQ."}
+
+
+def test_chat_stream_reports_llm_failure_before_streaming_as_http_error():
+    with client_for(FakeLanguageModel([LanguageModelBusyError("429")]), FakeGraphRepository()) as client:
+        response = client.post("/api/v1/chat/stream", json={"question": "What did you build?"})
+    assert response.status_code == 503
+    assert response.json()["error"]["code"] == "llm_busy"
+
+
+def test_chat_stream_reports_llm_failure_mid_stream_as_error_event():
+    llm = FakeLanguageModel(["MATCH (me:Person)-[b:BUILT]->(p:Project) RETURN me, b, p", LanguageModelError("500")])
+    repo = FakeGraphRepository([QueryResult(({"p": {"name": "gitEQ"}},), SUBGRAPH)])
+    with client_for(llm, repo) as client:
+        response = client.post("/api/v1/chat/stream", json={"question": "What did you build?"})
+    events = sse_events(response.text)
+    assert [kind for kind, _ in events] == ["meta", "error"]
+    assert events[-1][1]["code"] == "llm_unavailable"

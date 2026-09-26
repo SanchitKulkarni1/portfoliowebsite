@@ -22,4 +22,4 @@ services:
       - key: ALLOWED_ORIGINS
         value: https://sanchitkulkarni.vercel.app,http://localhost:8080
       - key: ALLOWED_ORIGIN_REGEX
-        value: https://frontend(-[a-z0-9-]+)?-sanchit-kulkarnis-projects\.vercel\.app
+        value: https://(frontend|sanchitkulkarni)(-[a-z0-9-]+)?-sanchit-kulkarnis-projects\.vercel\.app

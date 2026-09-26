@@ -42,6 +42,10 @@ class Settings(Neo4jSettings):
     graph_snapshot_ttl_seconds: float = Field(300.0, ge=0)
     chat_cache_ttl_seconds: float = Field(3600.0, ge=0)  # 0 disables the answer cache
     chat_cache_max_entries: int = Field(500, ge=1)
+    # Pre-answer data/suggested_questions.json at startup. Each question costs 2 LLM calls,
+    # spaced so the warm-up stays well under the free tier's per-minute quota.
+    chat_cache_warm_up: bool = True
+    chat_cache_warm_up_spacing_seconds: float = Field(8.0, ge=0)
     log_level: str = "INFO"
 
     @field_validator("allowed_origins", mode="before")

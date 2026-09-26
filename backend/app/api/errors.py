@@ -13,6 +13,8 @@ from app.api.schemas import ErrorBody, ErrorResponse
 from app.domain.errors import CareerGraphError, GraphUnavailableError, LanguageModelBusyError, LanguageModelError
 
 LLM_BUSY_RETRY_AFTER_SECONDS = 30
+LLM_BUSY_MESSAGE = "The assistant is getting a lot of questions right now. Please try again in a minute."
+LLM_UNAVAILABLE_MESSAGE = "The assistant is temporarily unavailable. Please try again shortly."
 
 logger = logging.getLogger(__name__)
 
@@ -47,14 +49,14 @@ def register_exception_handlers(app: FastAPI) -> None:
         return _error(
             503,
             "llm_busy",
-            "The assistant is getting a lot of questions right now. Please try again in a minute.",
+            LLM_BUSY_MESSAGE,
             {"Retry-After": str(LLM_BUSY_RETRY_AFTER_SECONDS)},
         )
 
     @app.exception_handler(LanguageModelError)
     async def _llm(_: Request, exc: LanguageModelError) -> JSONResponse:
         logger.error("LLM unavailable: %s", exc)
-        return _error(503, "llm_unavailable", "The assistant is temporarily unavailable. Please try again shortly.")
+        return _error(503, "llm_unavailable", LLM_UNAVAILABLE_MESSAGE)
 
     @app.exception_handler(GraphUnavailableError)
     async def _graph(_: Request, exc: GraphUnavailableError) -> JSONResponse:

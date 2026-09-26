@@ -144,3 +144,21 @@ async def test_failed_answers_are_not_cached():
 
     assert (await service.ask("q")).status is ChatStatus.FAILED
     assert (await service.ask("q")).status is ChatStatus.ANSWERED
+
+
+async def test_stage_timings_cover_each_step_and_cache_hits_skip_them():
+    from app.services.answer_cache import AnswerCache
+    from app.services.timing import StageTimings
+
+    llm = FakeLanguageModel([QUERY, "Sanchit built gitEQ."])
+    service = ChatService(
+        llm, FakeGraphRepository([RESULT]), CypherGuard(max_rows=50), cache=AnswerCache(max_entries=10, ttl_seconds=60)
+    )
+
+    fresh, repeat = StageTimings(), StageTimings()
+    await service.ask("Tell me about gitEQ", fresh)
+    await service.ask("Tell me about gitEQ", repeat)
+
+    assert [stage for stage, _ in fresh.stages] == ["cache", "llm_cypher", "db", "llm_answer"]
+    assert [stage for stage, _ in repeat.stages] == ["cache"]
+    assert all(ms >= 0 for _, ms in fresh.stages)

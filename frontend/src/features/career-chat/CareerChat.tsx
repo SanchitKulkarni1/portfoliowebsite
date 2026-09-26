@@ -81,6 +81,7 @@ function AssistantMessage({ message, focused, onFocus }: { message: ChatMessage;
         </span>
       )}
       <RichText text={message.text} />
+      {message.streaming && <span className="ml-0.5 inline-block h-4 w-1.5 animate-pulse bg-brand align-middle" aria-hidden />}
       {(message.cypher || nodeCount > 0) && (
         <div className="mt-3 space-y-2 border-t border-white/5 pt-3">
           {nodeCount > 0 && (
@@ -205,7 +206,7 @@ export function CareerChat({ messages, pending, stage, backend, focusedId, onAsk
           ),
         )}
 
-        {pending && (
+        {pending && !messages.some((m) => m.streaming) && (
           <div className="rounded-xl border border-white/10 bg-white/[0.02] p-4">
             <Pipeline stage={stage} />
           </div>

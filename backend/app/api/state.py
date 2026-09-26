@@ -21,3 +21,5 @@ class Container:
     graph_service: GraphService
     chat_rate_limiter: SlidingWindowRateLimiter
     close: Callable[[], Awaitable[None]] = _noop
+    # Started in the background once the app is up (e.g. pre-answering suggested questions).
+    warm_up: Callable[[], Awaitable[None]] = _noop

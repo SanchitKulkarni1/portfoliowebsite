@@ -31,9 +31,13 @@ class AnswerCache:
         self._ttl = ttl_seconds
         self._clock = clock
         self._entries: OrderedDict[str, tuple[float, ChatAnswer]] = OrderedDict()
+        # Pre-answered suggested questions: kept for the life of the process, never evicted.
+        self._pinned: dict[str, ChatAnswer] = {}
 
     def get(self, question: str) -> ChatAnswer | None:
         key = cache_key(question)
+        if key in self._pinned:
+            return self._pinned[key]
         entry = self._entries.get(key)
         if entry is None:
             return None
@@ -44,10 +48,14 @@ class AnswerCache:
         self._entries.move_to_end(key)
         return answer
 
-    def put(self, question: str, answer: ChatAnswer) -> None:
+    def put(self, question: str, answer: ChatAnswer, *, pinned: bool = False) -> None:
+        key = cache_key(question)
+        if pinned:
+            self._pinned[key] = answer
+            self._entries.pop(key, None)
+            return
         if self._ttl <= 0:
             return
-        key = cache_key(question)
         self._entries[key] = (self._clock(), answer)
         self._entries.move_to_end(key)
         while len(self._entries) > self._max:

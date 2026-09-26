@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import asyncio
+import contextlib
 import logging
 from collections.abc import AsyncIterator, Awaitable, Callable
 from contextlib import asynccontextmanager
@@ -25,9 +27,13 @@ def create_app(settings: Settings | None = None, container_factory: ContainerFac
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         container = await container_factory(settings)
         app.state.container = container
+        warm_up = asyncio.create_task(container.warm_up())
         try:
             yield
         finally:
+            warm_up.cancel()
+            with contextlib.suppress(asyncio.CancelledError):
+                await warm_up
             await container.close()
 
     app = FastAPI(
