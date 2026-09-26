@@ -65,6 +65,7 @@ Interactive docs are served at `/docs` (OpenAPI at `/openapi.json`).
 | `GET` | `/health/ready` | Readiness: `200 {"status":"ready","neo4j":"up"}` or `503` |
 | `GET` | `/api/v1/graph` | Full graph snapshot for the initial render |
 | `POST` | `/api/v1/chat` | Ask a question (rate-limited per client IP) |
+| `POST` | `/api/v1/chat/stream` | Same, but streams the answer as server-sent events |
 
 ### `POST /api/v1/chat`
 
@@ -95,6 +96,20 @@ Response `200`:
 | `off_topic` | Not a question about Sanchit's career; the database was not queried |
 | `refused` | The generated query failed the safety guard; nothing was executed |
 | `failed` | The query errored (after one automatic repair attempt) or timed out |
+
+### `POST /api/v1/chat/stream`
+
+Same request body and rate limit as `/chat`. The Cypher, guard and database steps run first, so failures there still return the normal error envelope. The answer is then streamed as server-sent events:
+
+```
+event: meta    data: {"status": "answered", "cypher": "...", "nodes": [...], "edges": [...]}
+event: delta   data: {"text": "LangGraph powers "}      (repeated)
+event: done    data: {"answer": "<full answer>"}
+```
+
+`meta` arrives as soon as the query has run, so a UI can highlight the graph while the answer is still being written. If the LLM fails mid-answer, the stream ends with `event: error` and `data: {"code": "llm_unavailable" | "llm_busy", "message": "..."}`.
+
+Every `/chat` and `/chat/stream` response carries a `Server-Timing` header with per-stage milliseconds (`cache`, `llm_cypher`, `db`, `llm_repair`, `llm_answer`). The same numbers go to the `chat` log line.
 
 ### `GET /api/v1/graph`
 
@@ -134,7 +149,8 @@ The API runs LLM-written queries against a live database, so it has two independ
 
 On top of that:
 - Rate limiting per client IP (default 10 questions / 10 min).
-- An in-memory answer cache (1 hour, 500 entries). Repeat questions, such as the suggested prompts, cost no LLM quota. Failed answers are never cached.
+- An in-memory answer cache (1 hour, 500 entries). Repeat questions cost no LLM quota. Failed answers are never cached.
+- The suggested questions (`data/suggested_questions.json`, shared with the frontend's chips) are pre-answered in the background at startup and kept for the life of the process, so the chips answer instantly. The warm-up runs one question every 8 seconds (about 12 LLM calls a minute), below the free tier's 15/min. Set `CHAT_CACHE_WARM_UP=false` to turn it off. After re-seeding the graph, restart the service so the pre-answers are rebuilt.
 - A 300-character cap on questions.
 - CORS restricted to known origins (an exact list plus an optional regex).
 - The answer prompt treats query results as data, not instructions.
@@ -201,4 +217,4 @@ Unit tests replace the two ports with in-memory fakes (`tests/fakes.py`). Integr
 
 **LLM quota.** The default model is `gemini-3.5-flash-lite`, which allows 15 requests/min on Gemini's free tier. Each question costs 2 LLM calls, or 0 when it's served from cache, so that's roughly 7 new questions a minute across the whole site. `gemini-2.5-flash` only allows 5/min. For real traffic, enable billing on the Google AI project; paid-tier limits are far higher and flash-lite costs fractions of a cent per question. `GEMINI_MODEL` overrides the model.
 
-Render's free tier sleeps after inactivity. A UI should call `/health` on page load to wake the service before the first question. The rate limiter is in-memory, which is fine on one instance; move it to Redis if you scale out.
+Render's free tier sleeps after about 15 minutes without traffic. `.github/workflows/keep-warm.yml` pings `/health/ready` every 10 minutes to keep it (and the Aura free instance) awake; the frontend also calls `/health` on page load as a fallback. The rate limiter is in-memory, which is fine on one instance; move it to Redis if you scale out.

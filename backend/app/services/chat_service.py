@@ -1,9 +1,13 @@
-"""The /chat use case: question -> Cypher -> guarded read -> grounded answer."""
+"""The /chat use case: question -> Cypher -> guarded read -> grounded answer.
+
+Split in two so the answer can be streamed: `prepare()` does everything up to the final
+LLM call (cache, Cypher, guard, database); `ask()` or `stream()` then writes the answer."""
 
 from __future__ import annotations
 
 import logging
-from dataclasses import dataclass
+from collections.abc import AsyncIterator
+from dataclasses import dataclass, replace
 
 from app.domain.errors import QueryExecutionError, QueryTimeoutError, UnsafeQueryError
 from app.domain.models import ChatAnswer, ChatStatus, QueryResult, SafeCypher
@@ -35,6 +39,22 @@ class ChatSettings:
     max_answer_chars: int = 12_000
 
 
+@dataclass(frozen=True)
+class PreparedAnswer:
+    """The result of `prepare()`. When `answer_prompt` is None, `answer` is already final
+    (a cache hit, off-topic, no results, refused or failed); otherwise `answer` carries the
+    status, Cypher and subgraph, and its text is still to be written from `answer_prompt`."""
+
+    question: str
+    answer: ChatAnswer
+    answer_prompt: str | None = None
+    from_cache: bool = False
+
+    @property
+    def is_final(self) -> bool:
+        return self.answer_prompt is None
+
+
 class ChatService:
     def __init__(
         self,
@@ -50,45 +70,72 @@ class ChatService:
         self._settings = settings
         self._cache = cache
 
-    async def ask(self, question: str, timings: StageTimings | None = None) -> ChatAnswer:
+    async def ask(self, question: str, timings: StageTimings | None = None, *, pin: bool = False) -> ChatAnswer:
+        """Answer in one go. `pin=True` keeps the answer cached for the life of the process."""
+        timings = timings if timings is not None else StageTimings()
+        prepared = await self.prepare(question, timings)
+        answer = prepared.answer
+        if not prepared.is_final:
+            with timings.measure("llm_answer"):
+                text = await self._llm.complete(system=prompts.ANSWER_SYSTEM, prompt=prepared.answer_prompt)
+            answer = replace(answer, answer=text.strip())
+        self._finish(prepared, answer, timings, pin=pin)
+        return answer
+
+    async def stream(self, prepared: PreparedAnswer, timings: StageTimings) -> AsyncIterator[str]:
+        """Yield the answer text in chunks. A final answer comes through as a single chunk."""
+        if prepared.is_final:
+            yield prepared.answer.answer
+            self._finish(prepared, prepared.answer, timings)
+            return
+        parts: list[str] = []
+        with timings.measure("llm_answer"):
+            async for chunk in self._llm.stream(system=prompts.ANSWER_SYSTEM, prompt=prepared.answer_prompt):
+                parts.append(chunk)
+                yield chunk
+        self._finish(prepared, replace(prepared.answer, answer="".join(parts).strip()), timings)
+
+    async def prepare(self, question: str, timings: StageTimings | None = None) -> PreparedAnswer:
         timings = timings if timings is not None else StageTimings()
         with timings.measure("cache"):
             cached = self._cache.get(question) if self._cache else None
-        answer = cached or await self._answer(question, timings)
-        if self._cache and not cached and answer.status in _CACHEABLE:
-            self._cache.put(question, answer)
-        logger.info(
-            "chat status=%s cached=%s total_ms=%.0f %s cypher=%r",
-            answer.status.value,
-            cached is not None,
-            timings.total_ms(),
-            timings.as_log(),
-            answer.cypher,
-        )
-        return answer
+        if cached is not None:
+            return PreparedAnswer(question, cached, from_cache=True)
 
-    async def _answer(self, question: str, timings: StageTimings) -> ChatAnswer:
         with timings.measure("llm_cypher"):
             completion = await self._llm.complete(system=prompts.CYPHER_SYSTEM, prompt=prompts.cypher_prompt(question))
         cypher = prompts.parse_cypher_completion(completion)
         if cypher is None:
-            return ChatAnswer(ChatStatus.OFF_TOPIC, OFF_TOPIC_REPLY)
+            return PreparedAnswer(question, ChatAnswer(ChatStatus.OFF_TOPIC, OFF_TOPIC_REPLY))
 
         outcome = await self._query_with_repair(question, cypher, timings)
         if isinstance(outcome, ChatAnswer):
-            return outcome
+            return PreparedAnswer(question, outcome)
         safe, result = outcome
 
         if result.is_empty:
-            return ChatAnswer(ChatStatus.NO_RESULTS, NO_RESULTS_REPLY, safe.text)
+            return PreparedAnswer(question, ChatAnswer(ChatStatus.NO_RESULTS, NO_RESULTS_REPLY, safe.text))
 
         rows = result.rows[: self._settings.max_answer_rows]
-        with timings.measure("llm_answer"):
-            text = await self._llm.complete(
-                system=prompts.ANSWER_SYSTEM,
-                prompt=prompts.answer_prompt(question, rows, max_chars=self._settings.max_answer_chars),
-            )
-        return ChatAnswer(ChatStatus.ANSWERED, text.strip(), safe.text, result.subgraph)
+        return PreparedAnswer(
+            question,
+            ChatAnswer(ChatStatus.ANSWERED, "", safe.text, result.subgraph),
+            answer_prompt=prompts.answer_prompt(question, rows, max_chars=self._settings.max_answer_chars),
+        )
+
+    def _finish(
+        self, prepared: PreparedAnswer, answer: ChatAnswer, timings: StageTimings, *, pin: bool = False
+    ) -> None:
+        if self._cache and answer.status in _CACHEABLE and (pin or not prepared.from_cache):
+            self._cache.put(prepared.question, answer, pinned=pin)
+        logger.info(
+            "chat status=%s cached=%s total_ms=%.0f %s cypher=%r",
+            answer.status.value,
+            prepared.from_cache,
+            timings.total_ms(),
+            timings.as_log(),
+            answer.cypher,
+        )
 
     async def _query_with_repair(
         self, question: str, cypher: str, timings: StageTimings
