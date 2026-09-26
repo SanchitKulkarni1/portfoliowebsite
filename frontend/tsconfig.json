@@ -8,7 +8,7 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
-      "@data/*": ["./backend/data/*"]
+      "@data/*": ["../backend/data/*"]
     },
     "noImplicitAny": false,
     "noUnusedParameters": false,
