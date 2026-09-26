@@ -28,6 +28,13 @@ def test_every_project_is_linked_to_sanchit():
     assert [n.id for n in dataset.nodes if n.label == "Project" and n.id not in built] == []
 
 
+def test_client_links_only_come_from_freelance_projects():
+    dataset = load_career_data(DATA)
+    kinds = {n.id: n.properties.get("kind") for n in dataset.nodes if n.label == "Project"}
+    for_client = [rel.source for rel in dataset.relationships if rel.type == "FOR_CLIENT"]
+    assert for_client and all(kinds[source] == "freelance" for source in for_client)
+
+
 @pytest.mark.parametrize(
     "raw,message",
     [

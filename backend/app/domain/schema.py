@@ -32,7 +32,7 @@ NODE_TYPES: tuple[NodeType, ...] = (
     NodeType(
         "Role",
         ("start", "end", "employment_type", "location", "summary"),
-        "A job held. `name` is the job title; start/end are 'YYYY-MM' strings, end is 'present' for the current role. location is a city or 'Remote'.",
+        "A job held. `name` is the job title; start/end are 'YYYY-MM' strings, end is 'present' for the current role. employment_type is one of 'full-time', 'contract', 'internship', 'freelance', 'co-founder', 'leadership'. location is a city or 'Remote'.",
     ),
     NodeType("Company", ("industry", "location"), "An employer or client organisation."),
     NodeType(
@@ -55,6 +55,7 @@ RELATIONSHIP_TYPES: tuple[RelationshipType, ...] = (
     RelationshipType("BUILT_DURING", "Project", "Role", "The project was built as part of this role."),
     RelationshipType("USES", "Project", "Skill", "The project uses this skill."),
     RelationshipType("USES", "Role", "Skill", "The role involved this skill."),
+    RelationshipType("FOR_CLIENT", "Project", "Company", "The client a freelance project was built for."),
     RelationshipType("STUDIED_AT", "Person", "Education", "Sanchit studied here."),
 )
 

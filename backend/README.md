@@ -142,11 +142,12 @@ On top of that:
 
 ## The graph
 
-`data/career_graph.json` is the source of truth. It's built from the resume and the project READMEs, and holds 80 nodes and 167 relationships:
+`data/career_graph.json` is the source of truth. It's built from the resume and the project READMEs, and holds 94 nodes and 214 relationships:
 
 ```
 (:Person)-[:HELD]->(:Role)-[:AT_COMPANY]->(:Company)
 (:Person)-[:BUILT]->(:Project)-[:BUILT_DURING]->(:Role)
+(:Project)-[:FOR_CLIENT]->(:Company)          (freelance work)
 (:Project|Role)-[:USES]->(:Skill)
 (:Person)-[:STUDIED_AT]->(:Education)
 ```

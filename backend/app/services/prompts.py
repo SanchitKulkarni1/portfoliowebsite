@@ -47,6 +47,20 @@ FEW_SHOT_EXAMPLES: tuple[tuple[str, str], ...] = (
         "RETURN me, h, r, a, c, b, p",
     ),
     (
+        "What did he build for Sportz Base?",
+        "MATCH (p:Project)-[f:FOR_CLIENT]->(c:Company)\n"
+        "WHERE toLower(c.name) CONTAINS 'sportz base'\n"
+        "OPTIONAL MATCH (p)-[u:USES]->(s:Skill)\n"
+        "RETURN p, f, c, u, s",
+    ),
+    (
+        "Has he founded a company?",
+        "MATCH (me:Person {id: 'sanchit'})-[h:HELD]->(r:Role)-[a:AT_COMPANY]->(c:Company)\n"
+        "WHERE r.employment_type = 'co-founder'\n"
+        "OPTIONAL MATCH (p:Project)-[b:BUILT_DURING]->(r)\n"
+        "RETURN me, h, r, a, c, b, p",
+    ),
+    (
         "What's your work history?",
         "MATCH (me:Person {id: 'sanchit'})-[h:HELD]->(r:Role)\n"
         "OPTIONAL MATCH (r)-[a:AT_COMPANY]->(c:Company)\n"
@@ -103,11 +117,59 @@ def repair_prompt(question: str, failed_query: str, error: str) -> str:
     )
 
 
+def _is_node(value: JsonValue) -> bool:
+    return isinstance(value, dict) and "label" in value and "id" in value
+
+
+def _is_relationship(value: JsonValue) -> bool:
+    return isinstance(value, dict) and set(value) == {"type", "source", "target"}
+
+
+def compact_results(rows: tuple[dict[str, JsonValue], ...]) -> dict[str, JsonValue]:
+    """Collapse graph rows into de-duplicated facts.
+
+    Graph queries return a cross product: one row per combination, repeating every
+    node's full properties. Listing each node once, relationships as short strings,
+    and any remaining scalar columns keeps the payload small, so nothing gets cut.
+    """
+    nodes: dict[str, JsonValue] = {}
+    relationships: dict[str, None] = {}
+    values: dict[str, None] = {}
+
+    def visit(value: JsonValue) -> JsonValue:
+        if _is_node(value):
+            nodes.setdefault(value["id"], value)
+            return value["id"]
+        if _is_relationship(value):
+            if value["source"] and value["target"]:
+                relationships.setdefault(f"{value['source']} -{value['type']}-> {value['target']}")
+            return None
+        if isinstance(value, list):
+            return [v for v in (visit(item) for item in value) if v is not None]
+        if isinstance(value, dict):
+            return {k: v for k, v in ((k, visit(v)) for k, v in value.items()) if v is not None}
+        return value
+
+    for row in rows:
+        reduced = {key: visit(value) for key, value in row.items()}
+        scalars = {
+            k: v for k, v in reduced.items() if not (isinstance(v, str) and v in nodes) and v not in (None, [], {})
+        }
+        if scalars:
+            nodes_in_row = [v for v in reduced.values() if isinstance(v, str) and v in nodes]
+            values.setdefault(json.dumps({"for": nodes_in_row, **scalars}, ensure_ascii=False, default=str))
+
+    compact: dict[str, JsonValue] = {"nodes": list(nodes.values()), "relationships": list(relationships)}
+    if values:
+        compact["values"] = [json.loads(v) for v in values]
+    return compact
+
+
 def answer_prompt(question: str, rows: tuple[dict[str, JsonValue], ...], *, max_chars: int) -> str:
-    payload = json.dumps(list(rows), ensure_ascii=False, default=str)
+    payload = json.dumps(compact_results(rows), ensure_ascii=False, default=str)
     if len(payload) > max_chars:
         payload = payload[:max_chars] + " …(truncated)"
-    return f"Visitor question: {question}\n\nDatabase results (JSON):\n{payload}"
+    return f"Visitor question: {question}\n\nFacts from Sanchit's career graph (JSON; relationships use node ids):\n{payload}"
 
 
 def parse_cypher_completion(completion: str) -> str | None:

@@ -1,22 +1,18 @@
 {
   "nodes": [
     {"label": "Person", "id": "sanchit", "name": "Sanchit Kulkarni", "headline": "AI Solutions Architect", "location": "Bengaluru, India", "summary": "Designs and ships production AI systems: multi-agent pipelines, RAG, document intelligence, and the backends they run on."},
-
     {"label": "Education", "id": "vesit", "name": "Vivekanand Education Society's Institute of Technology (VESIT)", "degree": "B.Tech, Electronics & Computer Science", "start": "2022", "end": "2026", "grade": "CGPA 8.51 / 10"},
-
-    {"label": "Company", "id": "evenflow-brands", "name": "Evenflow Brands", "industry": "B2B commerce", "location": "Bengaluru, India"},
+    {"label": "Company", "id": "evenflow-brands", "name": "Evenflow Brands", "industry": "Consumer brands (e-commerce & quick-commerce)", "location": "Bengaluru, India"},
     {"label": "Company", "id": "ascent-ai", "name": "Ascent AI Solutions (GR2 Engineering)", "industry": "AI engineering services"},
     {"label": "Company", "id": "the-ml-company", "name": "The Machine Learning Company", "industry": "AI/ML services"},
     {"label": "Company", "id": "anand-hospital", "name": "Anand Hospital", "industry": "Healthcare", "location": "Boisar, India"},
     {"label": "Company", "id": "codevertex", "name": "Codevertex", "industry": "Web services"},
     {"label": "Company", "id": "vesit-council", "name": "VESIT Student Council", "industry": "Education"},
-
     {"label": "Role", "id": "role-evenflow", "name": "AI Solutions Architect", "start": "2026-06", "end": "present", "employment_type": "full-time", "location": "Bengaluru, India", "summary": "Architecting core tech infrastructure from scratch for a high-growth B2B company: system architecture, database design and business logic across Ops, Finance, Marketing and Sourcing. Scopes, designs and ships a new production AI system almost daily."},
     {"label": "Role", "id": "role-ascent", "name": "Backend Engineer (Project-Based)", "start": "2026-04", "end": "2026-05", "employment_type": "contract", "location": "Remote", "summary": "Built production-grade FastAPI backends for a client engagement: Entra ID authentication, RBAC, PostgreSQL schemas with migrations, gateway-based microservices, centralized logging and secured AWS deployments."},
     {"label": "Role", "id": "role-tmlc", "name": "AI Engineer Intern", "start": "2025-09", "end": "2026-02", "employment_type": "internship", "location": "Remote", "summary": "Built and productionized enterprise RAG chatbots, multi-agent orchestrations and tool-use agents; trained, fine-tuned and deployed YOLOv8 models end-to-end, balancing precision against latency."},
     {"label": "Role", "id": "role-freelance", "name": "Freelance Full-Stack & AI Engineer", "employment_type": "freelance", "summary": "Delivers websites and AI systems for clients end-to-end, from requirements to deployment."},
     {"label": "Role", "id": "role-cultural-secretary", "name": "Deputy Cultural Secretary", "employment_type": "leadership", "location": "Mumbai, India", "summary": "Managed large-scale college events for 5,000+ participants at VESIT."},
-
     {"label": "Project", "id": "evenflow-price-intelligence", "name": "Price Intelligence System", "kind": "work", "year": 2026, "summary": "Production system that scrapes and tracks marketplace prices to support pricing decisions."},
     {"label": "Project", "id": "evenflow-debit-note-validation", "name": "Debit Note Validation", "kind": "work", "year": 2026, "summary": "AI system that validates debit notes for the finance team, replacing manual checks."},
     {"label": "Project", "id": "evenflow-catalog-monitoring", "name": "Catalog Monitoring", "kind": "work", "year": 2026, "summary": "Automated monitoring of the product catalog across sales channels."},
@@ -24,11 +20,9 @@
     {"label": "Project", "id": "ascent-secure-backend", "name": "Secure Gateway Backend Platform", "kind": "work", "year": 2026, "summary": "Permission-gated FastAPI platform with Entra ID auth, RBAC, gateway-orchestrated microservices, admin APIs and AWS deployment, serving text tools and navigation chatbots."},
     {"label": "Project", "id": "tmlc-rag-chatbots", "name": "Enterprise RAG Chatbots & Agents", "kind": "work", "year": 2025, "summary": "Enterprise-ready RAG chatbots, multi-agent orchestrations and autonomous tool-use agents taken to production."},
     {"label": "Project", "id": "tmlc-yolo-models", "name": "Custom YOLOv8 Detection Models", "kind": "work", "year": 2025, "summary": "Trained, fine-tuned and deployed custom YOLOv8 CNN models, from data preprocessing to optimized production inference."},
-
-    {"label": "Project", "id": "invoice-extraction", "name": "AI Invoice Extraction & Document Intelligence", "kind": "freelance", "year": 2026, "summary": "OCR + LLM layer that turns unstructured invoices into validated, structured data for a client, cutting manual data entry."},
-    {"label": "Project", "id": "anand-hospital-site", "name": "Anand Hospital Web Platform", "kind": "freelance", "year": 2025, "summary": "Responsive hospital website with appointment booking and patient information management.", "demo_url": "https://anandhospitalboisar.in/"},
-    {"label": "Project", "id": "codevertex-site", "name": "Codevertex Website", "kind": "freelance", "year": 2025, "summary": "Modern, interactive website for a web services firm, with 3D elements.", "demo_url": "https://www.codevertex.in/"},
-
+    {"label": "Project", "id": "invoice-extraction", "name": "AI Invoice Extraction & Document Intelligence", "kind": "freelance", "year": 2026, "summary": "OCR + LLM layer that turns unstructured invoices into validated, structured data for a client, cutting manual data entry.", "demo_url": "https://ai-ocr-extraction.vercel.app/"},
+    {"label": "Project", "id": "anand-hospital-site", "name": "Anand Hospital Management System & Website", "kind": "freelance", "year": 2025, "summary": "Internal hospital software plus the public website: appointment management, patient tracking and billing."},
+    {"label": "Project", "id": "codevertex-site", "name": "Codevertex Website", "kind": "freelance", "year": 2025, "summary": "Website for Codevertex, a web services firm: modern, interactive design with 3D elements.", "demo_url": "https://www.codevertex.in/"},
     {"label": "Project", "id": "giteq", "name": "gitEQ", "kind": "personal", "year": 2026, "summary": "Paste a GitHub URL and get architecture analysis, generated documentation and a chatbot for the codebase. Tree-sitter parsing plus LangGraph multi-agent analysis.", "repo_url": "https://github.com/SanchitKulkarni1/gitEQ", "demo_url": "https://giteq.vercel.app/"},
     {"label": "Project", "id": "dodgeai-fde", "name": "DodgeAI FDE", "kind": "personal", "year": 2026, "summary": "Natural-language questions to SQL over SAP Order-to-Cash data (19 tables, 50K+ records), with intent routing between SQL, semantic and hybrid retrieval and a live graph visualization.", "repo_url": "https://github.com/SanchitKulkarni1/DodgeAI-FDE", "demo_url": "https://dodgeai-o2c-eta.vercel.app/"},
     {"label": "Project", "id": "market-research-copilot", "name": "Market Research Copilot", "kind": "personal", "year": 2026, "summary": "Planner, executor and summarizer pipeline that turns a product query into a SWOT and competitive-positioning report.", "repo_url": "https://github.com/SanchitKulkarni1/Market-Research-Copilot", "demo_url": "https://market-research-copilot.streamlit.app/"},
@@ -42,7 +36,6 @@
     {"label": "Project", "id": "ai-resume-analyzer", "name": "AI Resume Analyzer", "kind": "personal", "year": 2025, "summary": "Scores a resume against a job description and returns detailed feedback and a career roadmap.", "repo_url": "https://github.com/SanchitKulkarni1/AI-Resume-Analyzer.backend", "demo_url": "https://ai-resume-analyzer-frontend-wheat.vercel.app/"},
     {"label": "Project", "id": "shopify-insights", "name": "Shopify Store Insights Fetcher", "kind": "personal", "year": 2025, "summary": "Extracts structured brand insights from any public Shopify store without the Shopify API.", "repo_url": "https://github.com/SanchitKulkarni1/Shopify-store-Insights-Fetcher-Application"},
     {"label": "Project", "id": "idps-ml", "name": "IDPS-ML", "kind": "personal", "year": 2025, "summary": "Multiclass network intrusion detection with a Streamlit interface.", "repo_url": "https://github.com/SanchitKulkarni1/IDPS-ML"},
-
     {"label": "Skill", "id": "llms", "name": "LLMs", "category": "AI/ML"},
     {"label": "Skill", "id": "rag", "name": "RAG", "category": "AI/ML"},
     {"label": "Skill", "id": "graphrag", "name": "GraphRAG", "category": "AI/ML"},
@@ -60,7 +53,6 @@
     {"label": "Skill", "id": "nlp", "name": "NLP", "category": "AI/ML"},
     {"label": "Skill", "id": "transformers", "name": "Transformers", "category": "AI/ML"},
     {"label": "Skill", "id": "scikit-learn", "name": "scikit-learn", "category": "AI/ML"},
-
     {"label": "Skill", "id": "python", "name": "Python", "category": "Backend"},
     {"label": "Skill", "id": "fastapi", "name": "FastAPI", "category": "Backend"},
     {"label": "Skill", "id": "rest-apis", "name": "REST APIs", "category": "Backend"},
@@ -70,7 +62,6 @@
     {"label": "Skill", "id": "web-scraping", "name": "Web Scraping", "category": "Backend"},
     {"label": "Skill", "id": "playwright", "name": "Playwright", "category": "Backend"},
     {"label": "Skill", "id": "pydantic", "name": "Pydantic", "category": "Backend"},
-
     {"label": "Skill", "id": "postgresql", "name": "PostgreSQL", "category": "Data"},
     {"label": "Skill", "id": "mongodb", "name": "MongoDB", "category": "Data"},
     {"label": "Skill", "id": "neo4j", "name": "Neo4j", "category": "Data"},
@@ -79,37 +70,45 @@
     {"label": "Skill", "id": "supabase", "name": "Supabase", "category": "Data"},
     {"label": "Skill", "id": "redis", "name": "Redis", "category": "Data"},
     {"label": "Skill", "id": "data-pipelines", "name": "Data Pipelines", "category": "Data"},
-
     {"label": "Skill", "id": "aws", "name": "AWS", "category": "Cloud & DevOps"},
     {"label": "Skill", "id": "render", "name": "Render", "category": "Cloud & DevOps"},
     {"label": "Skill", "id": "vercel", "name": "Vercel", "category": "Cloud & DevOps"},
-
     {"label": "Skill", "id": "react", "name": "React", "category": "Frontend"},
     {"label": "Skill", "id": "typescript", "name": "TypeScript", "category": "Frontend"},
     {"label": "Skill", "id": "streamlit", "name": "Streamlit", "category": "Frontend"},
     {"label": "Skill", "id": "threejs", "name": "Three.js", "category": "Frontend"},
-
     {"label": "Skill", "id": "tree-sitter", "name": "Tree-sitter", "category": "Tooling"},
     {"label": "Skill", "id": "serpapi", "name": "SerpAPI", "category": "Tooling"},
-    {"label": "Skill", "id": "tavily", "name": "Tavily", "category": "Tooling"}
+    {"label": "Skill", "id": "tavily", "name": "Tavily", "category": "Tooling"},
+    {"label": "Skill", "id": "react-native", "name": "React Native (Expo)", "category": "Frontend"},
+    {"label": "Skill", "id": "nextjs", "name": "Next.js", "category": "Frontend"},
+    {"label": "Skill", "id": "tanstack-start", "name": "TanStack Start", "category": "Frontend"},
+    {"label": "Skill", "id": "ssr", "name": "Server-Side Rendering", "category": "Frontend"},
+    {"label": "Company", "id": "balltime", "name": "Balltime", "industry": "Sports tech (local football community)"},
+    {"label": "Role", "id": "role-balltime", "name": "Co-founder", "start": "2025-08", "end": "present", "employment_type": "co-founder", "summary": "Co-founded Balltime and builds its product end-to-end: web app, mobile app and Supabase backend."},
+    {"label": "Project", "id": "balltime-platform", "name": "Balltime Platform", "kind": "work", "year": 2025, "summary": "Football community platform: players build profiles, form teams, challenge other teams, book turfs, climb points-based leaderboards and chat. Runs round-robin tournaments with fixtures, live scoring and MVP voting. Shipped as a React web app and an Expo (React Native) mobile app on a shared Supabase backend (auth, Postgres RPCs, storage, realtime).", "demo_url": "https://balltime.in"},
+    {"label": "Project", "id": "evenflow-website", "name": "evenflowbrands.com Revamp", "kind": "work", "year": 2026, "summary": "Rebuilt the company website in React on TanStack Start, adding server-side rendering and a CMS so the team can update content without code.", "demo_url": "https://evenflowbrands.com"},
+    {"label": "Company", "id": "sportzbase", "name": "Sportz Base Football Academy", "industry": "Sports academy"},
+    {"label": "Company", "id": "prasad-enterprises", "name": "Prasad Enterprises", "industry": "Construction, manpower & digital services", "location": "Maharashtra, India"},
+    {"label": "Company", "id": "aarohi-enterprises", "name": "Aarohi Enterprises", "industry": "Construction & crane services", "location": "Boisar, India"},
+    {"label": "Project", "id": "sportzbase-crm", "name": "Sportz Base Academy CRM", "kind": "freelance", "year": 2026, "summary": "The academy's complete management system: tokenised parent onboarding forms with document and payment uploads, students and batches, session scheduling with coach assignment, attendance, fees and payments, leave requests, and role-based staff access (admin, manager, coach). FastAPI and Supabase Postgres (RLS, RPCs, scheduled jobs) with a Next.js frontend, tuned for low latency."},
+    {"label": "Project", "id": "prasad-enterprises-site", "name": "Prasad Enterprises Website", "kind": "freelance", "year": 2026, "summary": "Website for a Maharashtra construction, manpower and digital-services company, built with React on TanStack Start.", "demo_url": "https://www.prasadenterprisesindia.com"},
+    {"label": "Project", "id": "aarohi-enterprises-site", "name": "Aarohi Enterprises Website", "kind": "freelance", "year": 2025, "summary": "Business website for a construction and crane services company."}
   ],
 
   "relationships": [
     {"type": "STUDIED_AT", "source": "sanchit", "target": "vesit"},
-
     {"type": "HELD", "source": "sanchit", "target": "role-evenflow"},
     {"type": "HELD", "source": "sanchit", "target": "role-ascent"},
     {"type": "HELD", "source": "sanchit", "target": "role-tmlc"},
     {"type": "HELD", "source": "sanchit", "target": "role-freelance"},
     {"type": "HELD", "source": "sanchit", "target": "role-cultural-secretary"},
-
     {"type": "AT_COMPANY", "source": "role-evenflow", "target": "evenflow-brands"},
     {"type": "AT_COMPANY", "source": "role-ascent", "target": "ascent-ai"},
     {"type": "AT_COMPANY", "source": "role-tmlc", "target": "the-ml-company"},
     {"type": "AT_COMPANY", "source": "role-freelance", "target": "anand-hospital"},
     {"type": "AT_COMPANY", "source": "role-freelance", "target": "codevertex"},
     {"type": "AT_COMPANY", "source": "role-cultural-secretary", "target": "vesit-council"},
-
     {"type": "USES", "source": "role-evenflow", "target": "system-architecture"},
     {"type": "USES", "source": "role-evenflow", "target": "python"},
     {"type": "USES", "source": "role-evenflow", "target": "llms"},
@@ -125,7 +124,6 @@
     {"type": "USES", "source": "role-tmlc", "target": "llms"},
     {"type": "USES", "source": "role-tmlc", "target": "yolov8"},
     {"type": "USES", "source": "role-tmlc", "target": "computer-vision"},
-
     {"type": "BUILT", "source": "sanchit", "target": "evenflow-price-intelligence"},
     {"type": "BUILT", "source": "sanchit", "target": "evenflow-debit-note-validation"},
     {"type": "BUILT", "source": "sanchit", "target": "evenflow-catalog-monitoring"},
@@ -149,7 +147,6 @@
     {"type": "BUILT", "source": "sanchit", "target": "ai-resume-analyzer"},
     {"type": "BUILT", "source": "sanchit", "target": "shopify-insights"},
     {"type": "BUILT", "source": "sanchit", "target": "idps-ml"},
-
     {"type": "BUILT_DURING", "source": "evenflow-price-intelligence", "target": "role-evenflow"},
     {"type": "BUILT_DURING", "source": "evenflow-debit-note-validation", "target": "role-evenflow"},
     {"type": "BUILT_DURING", "source": "evenflow-catalog-monitoring", "target": "role-evenflow"},
@@ -160,7 +157,6 @@
     {"type": "BUILT_DURING", "source": "invoice-extraction", "target": "role-freelance"},
     {"type": "BUILT_DURING", "source": "anand-hospital-site", "target": "role-freelance"},
     {"type": "BUILT_DURING", "source": "codevertex-site", "target": "role-freelance"},
-
     {"type": "USES", "source": "evenflow-price-intelligence", "target": "web-scraping"},
     {"type": "USES", "source": "evenflow-price-intelligence", "target": "python"},
     {"type": "USES", "source": "evenflow-price-intelligence", "target": "data-pipelines"},
@@ -172,14 +168,12 @@
     {"type": "USES", "source": "evenflow-ops-automation", "target": "rest-apis"},
     {"type": "USES", "source": "evenflow-ops-automation", "target": "data-pipelines"},
     {"type": "USES", "source": "evenflow-ops-automation", "target": "system-architecture"},
-
     {"type": "USES", "source": "ascent-secure-backend", "target": "fastapi"},
     {"type": "USES", "source": "ascent-secure-backend", "target": "auth-rbac"},
     {"type": "USES", "source": "ascent-secure-backend", "target": "postgresql"},
     {"type": "USES", "source": "ascent-secure-backend", "target": "microservices"},
     {"type": "USES", "source": "ascent-secure-backend", "target": "aws"},
     {"type": "USES", "source": "ascent-secure-backend", "target": "llms"},
-
     {"type": "USES", "source": "tmlc-rag-chatbots", "target": "rag"},
     {"type": "USES", "source": "tmlc-rag-chatbots", "target": "multi-agent"},
     {"type": "USES", "source": "tmlc-rag-chatbots", "target": "llms"},
@@ -188,7 +182,6 @@
     {"type": "USES", "source": "tmlc-yolo-models", "target": "pytorch"},
     {"type": "USES", "source": "tmlc-yolo-models", "target": "computer-vision"},
     {"type": "USES", "source": "tmlc-yolo-models", "target": "python"},
-
     {"type": "USES", "source": "invoice-extraction", "target": "ocr"},
     {"type": "USES", "source": "invoice-extraction", "target": "llms"},
     {"type": "USES", "source": "invoice-extraction", "target": "python"},
@@ -199,7 +192,6 @@
     {"type": "USES", "source": "codevertex-site", "target": "typescript"},
     {"type": "USES", "source": "codevertex-site", "target": "threejs"},
     {"type": "USES", "source": "codevertex-site", "target": "mongodb"},
-
     {"type": "USES", "source": "giteq", "target": "fastapi"},
     {"type": "USES", "source": "giteq", "target": "langgraph"},
     {"type": "USES", "source": "giteq", "target": "gemini"},
@@ -208,7 +200,6 @@
     {"type": "USES", "source": "giteq", "target": "react"},
     {"type": "USES", "source": "giteq", "target": "render"},
     {"type": "USES", "source": "giteq", "target": "vercel"},
-
     {"type": "USES", "source": "dodgeai-fde", "target": "fastapi"},
     {"type": "USES", "source": "dodgeai-fde", "target": "langgraph"},
     {"type": "USES", "source": "dodgeai-fde", "target": "gemini"},
@@ -219,7 +210,6 @@
     {"type": "USES", "source": "dodgeai-fde", "target": "react"},
     {"type": "USES", "source": "dodgeai-fde", "target": "typescript"},
     {"type": "USES", "source": "dodgeai-fde", "target": "vercel"},
-
     {"type": "USES", "source": "market-research-copilot", "target": "langgraph"},
     {"type": "USES", "source": "market-research-copilot", "target": "gemini"},
     {"type": "USES", "source": "market-research-copilot", "target": "multi-agent"},
@@ -227,19 +217,16 @@
     {"type": "USES", "source": "market-research-copilot", "target": "web-scraping"},
     {"type": "USES", "source": "market-research-copilot", "target": "pydantic"},
     {"type": "USES", "source": "market-research-copilot", "target": "streamlit"},
-
     {"type": "USES", "source": "pharma-context-engine", "target": "yolov8"},
     {"type": "USES", "source": "pharma-context-engine", "target": "ocr"},
     {"type": "USES", "source": "pharma-context-engine", "target": "computer-vision"},
     {"type": "USES", "source": "pharma-context-engine", "target": "python"},
-
     {"type": "USES", "source": "ai-sales-agent", "target": "langgraph"},
     {"type": "USES", "source": "ai-sales-agent", "target": "scikit-learn"},
     {"type": "USES", "source": "ai-sales-agent", "target": "rag"},
     {"type": "USES", "source": "ai-sales-agent", "target": "chromadb"},
     {"type": "USES", "source": "ai-sales-agent", "target": "gemini"},
     {"type": "USES", "source": "ai-sales-agent", "target": "streamlit"},
-
     {"type": "USES", "source": "dynamic-pricing-agent", "target": "fastapi"},
     {"type": "USES", "source": "dynamic-pricing-agent", "target": "langgraph"},
     {"type": "USES", "source": "dynamic-pricing-agent", "target": "multi-agent"},
@@ -247,7 +234,6 @@
     {"type": "USES", "source": "dynamic-pricing-agent", "target": "playwright"},
     {"type": "USES", "source": "dynamic-pricing-agent", "target": "web-scraping"},
     {"type": "USES", "source": "dynamic-pricing-agent", "target": "streamlit"},
-
     {"type": "USES", "source": "recall", "target": "fastapi"},
     {"type": "USES", "source": "recall", "target": "langgraph"},
     {"type": "USES", "source": "recall", "target": "nemotron"},
@@ -255,34 +241,75 @@
     {"type": "USES", "source": "recall", "target": "postgresql"},
     {"type": "USES", "source": "recall", "target": "pgvector"},
     {"type": "USES", "source": "recall", "target": "supabase"},
-
     {"type": "USES", "source": "career-graph", "target": "neo4j"},
     {"type": "USES", "source": "career-graph", "target": "graphrag"},
     {"type": "USES", "source": "career-graph", "target": "fastapi"},
     {"type": "USES", "source": "career-graph", "target": "gemini"},
     {"type": "USES", "source": "career-graph", "target": "render"},
-
     {"type": "USES", "source": "mediflow", "target": "fastapi"},
     {"type": "USES", "source": "mediflow", "target": "gemini"},
     {"type": "USES", "source": "mediflow", "target": "google-adk"},
     {"type": "USES", "source": "mediflow", "target": "react"},
     {"type": "USES", "source": "mediflow", "target": "typescript"},
-
     {"type": "USES", "source": "prompt-optimizer", "target": "fastapi"},
     {"type": "USES", "source": "prompt-optimizer", "target": "nlp"},
     {"type": "USES", "source": "prompt-optimizer", "target": "transformers"},
-
     {"type": "USES", "source": "ai-resume-analyzer", "target": "fastapi"},
     {"type": "USES", "source": "ai-resume-analyzer", "target": "langchain"},
     {"type": "USES", "source": "ai-resume-analyzer", "target": "rag"},
     {"type": "USES", "source": "ai-resume-analyzer", "target": "chromadb"},
     {"type": "USES", "source": "ai-resume-analyzer", "target": "react"},
     {"type": "USES", "source": "ai-resume-analyzer", "target": "vercel"},
-
     {"type": "USES", "source": "shopify-insights", "target": "python"},
     {"type": "USES", "source": "shopify-insights", "target": "web-scraping"},
-
     {"type": "USES", "source": "idps-ml", "target": "scikit-learn"},
-    {"type": "USES", "source": "idps-ml", "target": "streamlit"}
+    {"type": "USES", "source": "idps-ml", "target": "streamlit"},
+    {"type": "HELD", "source": "sanchit", "target": "role-balltime"},
+    {"type": "AT_COMPANY", "source": "role-balltime", "target": "balltime"},
+    {"type": "USES", "source": "role-balltime", "target": "react"},
+    {"type": "USES", "source": "role-balltime", "target": "react-native"},
+    {"type": "USES", "source": "role-balltime", "target": "supabase"},
+    {"type": "USES", "source": "role-balltime", "target": "system-architecture"},
+    {"type": "BUILT", "source": "sanchit", "target": "balltime-platform"},
+    {"type": "BUILT_DURING", "source": "balltime-platform", "target": "role-balltime"},
+    {"type": "USES", "source": "balltime-platform", "target": "react"},
+    {"type": "USES", "source": "balltime-platform", "target": "typescript"},
+    {"type": "USES", "source": "balltime-platform", "target": "react-native"},
+    {"type": "USES", "source": "balltime-platform", "target": "supabase"},
+    {"type": "USES", "source": "balltime-platform", "target": "postgresql"},
+    {"type": "BUILT", "source": "sanchit", "target": "evenflow-website"},
+    {"type": "BUILT_DURING", "source": "evenflow-website", "target": "role-evenflow"},
+    {"type": "USES", "source": "evenflow-website", "target": "react"},
+    {"type": "USES", "source": "evenflow-website", "target": "typescript"},
+    {"type": "USES", "source": "evenflow-website", "target": "tanstack-start"},
+    {"type": "USES", "source": "evenflow-website", "target": "ssr"},
+    {"type": "AT_COMPANY", "source": "role-freelance", "target": "sportzbase"},
+    {"type": "AT_COMPANY", "source": "role-freelance", "target": "prasad-enterprises"},
+    {"type": "AT_COMPANY", "source": "role-freelance", "target": "aarohi-enterprises"},
+    {"type": "BUILT", "source": "sanchit", "target": "sportzbase-crm"},
+    {"type": "BUILT_DURING", "source": "sportzbase-crm", "target": "role-freelance"},
+    {"type": "USES", "source": "sportzbase-crm", "target": "fastapi"},
+    {"type": "USES", "source": "sportzbase-crm", "target": "python"},
+    {"type": "USES", "source": "sportzbase-crm", "target": "supabase"},
+    {"type": "USES", "source": "sportzbase-crm", "target": "postgresql"},
+    {"type": "USES", "source": "sportzbase-crm", "target": "nextjs"},
+    {"type": "USES", "source": "sportzbase-crm", "target": "typescript"},
+    {"type": "USES", "source": "sportzbase-crm", "target": "rest-apis"},
+    {"type": "USES", "source": "sportzbase-crm", "target": "system-architecture"},
+    {"type": "BUILT", "source": "sanchit", "target": "prasad-enterprises-site"},
+    {"type": "BUILT_DURING", "source": "prasad-enterprises-site", "target": "role-freelance"},
+    {"type": "USES", "source": "prasad-enterprises-site", "target": "react"},
+    {"type": "USES", "source": "prasad-enterprises-site", "target": "typescript"},
+    {"type": "USES", "source": "prasad-enterprises-site", "target": "tanstack-start"},
+    {"type": "USES", "source": "prasad-enterprises-site", "target": "ssr"},
+    {"type": "BUILT", "source": "sanchit", "target": "aarohi-enterprises-site"},
+    {"type": "BUILT_DURING", "source": "aarohi-enterprises-site", "target": "role-freelance"},
+    {"type": "USES", "source": "aarohi-enterprises-site", "target": "react"},
+    {"type": "USES", "source": "aarohi-enterprises-site", "target": "typescript"},
+    {"type": "FOR_CLIENT", "source": "sportzbase-crm", "target": "sportzbase"},
+    {"type": "FOR_CLIENT", "source": "prasad-enterprises-site", "target": "prasad-enterprises"},
+    {"type": "FOR_CLIENT", "source": "aarohi-enterprises-site", "target": "aarohi-enterprises"},
+    {"type": "FOR_CLIENT", "source": "anand-hospital-site", "target": "anand-hospital"},
+    {"type": "FOR_CLIENT", "source": "codevertex-site", "target": "codevertex"}
   ]
 }
