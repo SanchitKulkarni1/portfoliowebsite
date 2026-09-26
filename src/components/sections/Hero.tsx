@@ -1,64 +1,73 @@
-import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import ContactModal from "@/components/ContactModal";
-import { Github, Linkedin, Mail } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { ChevronDown, Github, Linkedin, MapPin } from "lucide-react";
+import { BlurText } from "@/components/common/BlurText";
+import { profile } from "@/content/profile";
 
-import SanchitPic1 from "./../../../images/SanchitPic1.jpeg"
+const nameClass =
+  "justify-center whitespace-nowrap font-display font-bold uppercase leading-[0.78] tracking-tighter text-brand " +
+  "text-[18.5vw] sm:text-[15vw] lg:text-[190px] xl:text-[210px]";
 
-export default function Hero() {
-  const glowRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const el = glowRef.current;
-    if (!el) return;
-    const onMove = (e: MouseEvent) => {
-      const rect = document.body.getBoundingClientRect();
-      const x = ((e.clientX - rect.left) / rect.width) * 100;
-      const y = ((e.clientY - rect.top) / rect.height) * 100;
-      el.style.setProperty("--x", `${x}%`);
-      el.style.setProperty("--y", `${y}%`);
-    };
-    window.addEventListener("mousemove", onMove);
-    return () => window.removeEventListener("mousemove", onMove);
-  }, []);
-
+/** Adapted from 21st.dev "Portfolio Hero": giant name with the portrait overlaid in the centre. */
+export function Hero() {
   return (
-    <section id="home" className="relative overflow-hidden">
-      <div ref={glowRef} aria-hidden className="glow-field" />
+    <section id="top" className="relative flex min-h-[100svh] flex-col overflow-hidden bg-background">
+      <div className="pointer-events-none absolute inset-0 bg-grid [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_75%)]" />
 
-      <div className="container flex min-h-[78vh] flex-col items-center justify-center py-20 text-center">
-        <div className="mb-6">
-          <div className="mx-auto w-28 h-28 md:w-32 md:h-32 rounded-full ring-1 ring-primary/20 overflow-hidden">
-            <Avatar className="w-28 h-28 md:w-32 md:h-32">
-              <AvatarImage src={SanchitPic1} alt="Sanchit Kulkarni" loading="lazy" />
-              <AvatarFallback>YN</AvatarFallback>
-            </Avatar>
+      <div className="relative flex flex-1 items-center justify-center px-2 pt-16">
+        <div className="relative text-center">
+          <h1 className="sr-only">
+            {profile.firstName} {profile.lastName}, {profile.headline}
+          </h1>
+          <BlurText text={profile.firstName} as="span" animateBy="letters" delay={90} className={nameClass} />
+          <br />
+          <BlurText text={profile.lastName} as="span" animateBy="letters" delay={90} className={nameClass} />
+
+          <div className="absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2">
+            <div className="h-[38vw] w-[23vw] overflow-hidden rounded-full shadow-[0_0_80px_-10px_hsl(var(--brand)/0.45)] ring-1 ring-white/10 transition-transform duration-500 hover:scale-105 sm:h-[30vw] sm:w-[18vw] lg:h-[250px] lg:w-[150px]">
+              <img src={profile.photo} alt={`${profile.firstName} ${profile.lastName}`} className="h-full w-full object-cover" />
+            </div>
           </div>
         </div>
-        <p className="mb-4 text-lg font-medium text-brand animate-fade-in">AI/ML Engineer & FullStack Developer</p>
-        <h1 className="font-display text-5xl md:text-6xl font-semibold tracking-tight animate-enter">
-        Crafting smart, scalable products powered by AI and modern web tech.
-        </h1>
-        <p className="mt-5 max-w-2xl text-lg text-foreground animate-fade-in">
-        I build intelligent, high-performance apps that don’t just work — they solve real problems.
-        </p>
+      </div>
 
-        <div className="mt-8 flex flex-wrap items-center justify-center gap-3 animate-scale-in">
-          <Button variant="hero" size="lg" asChild>
-            <a href="https://drive.google.com/file/d/1LJw6cYZF8DpFagaSVzA6VIHuOVyVzdbZ/view?usp=sharing">My Resume</a>
-          </Button>
-          <Button variant="hero" size="lg" asChild>
-            <a href="#contact">Contact Me</a>
-          </Button>
-        </div>
-
-        <div className="mt-8 flex items-center gap-4 text-muted-foreground">
-          <a className="hover-scale" href="https://github.com/SanchitKulkarni1" aria-label="GitHub"><Github /></a>
-          <a className="hover-scale" href="https://www.linkedin.com/in/sanchit-kulkarni-22007529b/" aria-label="LinkedIn"><Linkedin /></a>
-          <ContactModal  trigger={<button className="hover-scale" aria-label="Email"><Mail /></button>} />
+      <div className="relative z-10 flex flex-col items-center gap-5 px-6 pb-20 text-center sm:pb-24">
+        <p className="font-mono text-xs uppercase tracking-[0.35em] text-brand sm:text-sm">{profile.headline}</p>
+        <BlurText
+          text={profile.tagline}
+          delay={80}
+          className="max-w-2xl justify-center text-lg text-neutral-300 sm:text-xl md:text-2xl"
+        />
+        <div className="flex flex-wrap items-center justify-center gap-3 text-sm">
+          <a
+            href="#story"
+            className="rounded-full bg-brand px-5 py-2.5 font-semibold text-brand-foreground transition-transform hover:scale-[1.03]"
+          >
+            Read the story
+          </a>
+          <a
+            href={profile.resumeUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="rounded-full border border-white/15 px-5 py-2.5 font-semibold transition-colors hover:border-white/40"
+          >
+            Résumé
+          </a>
+          <span className="flex items-center gap-3 pl-1 text-neutral-400">
+            <a href={profile.links.github} target="_blank" rel="noreferrer" aria-label="GitHub" className="hover:text-white">
+              <Github className="h-5 w-5" />
+            </a>
+            <a href={profile.links.linkedin} target="_blank" rel="noreferrer" aria-label="LinkedIn" className="hover:text-white">
+              <Linkedin className="h-5 w-5" />
+            </a>
+            <span className="inline-flex items-center gap-1 font-mono text-xs">
+              <MapPin className="h-3.5 w-3.5" /> {profile.location}
+            </span>
+          </span>
         </div>
       </div>
+
+      <a href="#about" aria-label="Scroll down" className="absolute bottom-5 left-1/2 -translate-x-1/2 text-neutral-500 hover:text-white">
+        <ChevronDown className="h-6 w-6 animate-bounce" />
+      </a>
     </section>
   );
 }
