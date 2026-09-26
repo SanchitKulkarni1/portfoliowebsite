@@ -61,6 +61,12 @@ FEW_SHOT_EXAMPLES: tuple[tuple[str, str], ...] = (
         "RETURN me, h, r, a, c, b, p",
     ),
     (
+        "What did he do during college?",
+        "MATCH (me:Person {id: 'sanchit'})-[st:STUDIED_AT]->(e:Education)\n"
+        "OPTIONAL MATCH (x)-[d:DURING_STUDIES]->(e)\n"
+        "RETURN me, st, e, d, x",
+    ),
+    (
         "What's your work history?",
         "MATCH (me:Person {id: 'sanchit'})-[h:HELD]->(r:Role)\n"
         "OPTIONAL MATCH (r)-[a:AT_COMPANY]->(c:Company)\n"
@@ -83,6 +89,7 @@ Rules:
 - Put each filter in a WHERE directly after the MATCH that introduces that node. A WHERE after an OPTIONAL MATCH does not remove rows from earlier MATCH clauses, so never filter the main entity there.
 - Do not use parameters ($...), procedures (CALL), backticks, UNION or namespaced functions. To cover both projects and roles, match an unlabelled node, e.g. `(s:Skill)<-[u:USES]-(x)`, instead of using UNION.
 - Role start/end are 'YYYY-MM' strings (end may be 'present'); compare them as strings. A role overlaps year Y when start <= 'Y-12' AND (end >= 'Y-01' OR end = 'present'). Projects have an integer `year`.
+- For questions about his college, university or student years, include what he did there: the Education node plus everything linked to it by DURING_STUDIES.
 - Sanchit is the single :Person node with id 'sanchit'. Questions saying "you" or "your" mean Sanchit.
 - If the question is not about Sanchit's roles, projects, skills, companies or education, output exactly: {NO_QUERY}
 

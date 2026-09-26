@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from functools import lru_cache
 from typing import Annotated
 
@@ -34,6 +35,8 @@ class Settings(Neo4jSettings):
 
     # HTTP
     allowed_origins: Annotated[list[str], NoDecode] = ["http://localhost:8080"]
+    # Optional full-match regex for origins that can't be listed up front, e.g. Vercel preview URLs.
+    allowed_origin_regex: str | None = None
     chat_rate_limit_requests: int = Field(10, ge=1)
     chat_rate_limit_window_seconds: float = Field(600.0, gt=0)
     graph_snapshot_ttl_seconds: float = Field(300.0, ge=0)
@@ -47,6 +50,14 @@ class Settings(Neo4jSettings):
         if isinstance(value, str):
             return [origin.strip().rstrip("/") for origin in value.split(",") if origin.strip()]
         return value
+
+    @field_validator("allowed_origin_regex")
+    @classmethod
+    def _compile_origin_regex(cls, value: str | None) -> str | None:
+        if value is None or not value.strip():
+            return None
+        re.compile(value)  # fail at startup, not on the first request
+        return value.strip()
 
 
 @lru_cache

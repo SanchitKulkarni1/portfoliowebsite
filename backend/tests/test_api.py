@@ -162,3 +162,23 @@ def test_openapi_documents_the_contract():
     with client_for(FakeLanguageModel([]), FakeGraphRepository()) as client:
         paths = client.get("/openapi.json").json()["paths"]
     assert set(paths) >= {"/health", "/health/ready", "/api/v1/graph", "/api/v1/chat"}
+
+
+def test_cors_allows_origins_matching_the_regex():
+    preview = "https://frontend-git-main-sanchit-kulkarnis-projects.vercel.app"
+    regex = r"https://frontend(-[a-z0-9-]+)?-sanchit-kulkarnis-projects\.vercel\.app"
+
+    def preflight(client: TestClient, origin: str):
+        return client.options(
+            "/api/v1/chat",
+            headers={"Origin": origin, "Access-Control-Request-Method": "POST"},
+        )
+
+    with client_for(FakeLanguageModel([]), FakeGraphRepository(), allowed_origin_regex=regex) as client:
+        allowed = preflight(client, preview)
+        listed = preflight(client, ORIGIN)
+        lookalike = preflight(client, "https://frontend-git-main-sanchit-kulkarnis-projects.vercel.app.evil.example")
+    assert allowed.status_code == 200
+    assert allowed.headers["access-control-allow-origin"] == preview
+    assert listed.status_code == 200
+    assert lookalike.status_code == 400

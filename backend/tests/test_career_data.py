@@ -64,3 +64,10 @@ def test_client_links_only_come_from_freelance_projects():
 def test_invalid_data_is_rejected(raw, message):
     with pytest.raises(InvalidCareerDataError, match=message):
         parse_career_data(raw)
+
+
+def test_college_years_link_leadership_internship_and_projects():
+    dataset = load_career_data(DATA)
+    during = {rel.source for rel in dataset.relationships if rel.type == "DURING_STUDIES"}
+    assert {"role-cultural-secretary", "role-tmlc"} <= during
+    assert "role-evenflow" not in during  # full-time, after graduating
