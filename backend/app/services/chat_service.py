@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import logging
-import time
 from dataclasses import dataclass
 
 from app.domain.errors import QueryExecutionError, QueryTimeoutError, UnsafeQueryError
@@ -12,6 +11,7 @@ from app.domain.ports import GraphRepository, LanguageModel
 from app.services import prompts
 from app.services.answer_cache import AnswerCache
 from app.services.cypher_guard import CypherGuard
+from app.services.timing import StageTimings
 
 logger = logging.getLogger(__name__)
 
@@ -50,28 +50,31 @@ class ChatService:
         self._settings = settings
         self._cache = cache
 
-    async def ask(self, question: str) -> ChatAnswer:
-        started = time.perf_counter()
-        cached = self._cache.get(question) if self._cache else None
-        answer = cached or await self._answer(question)
+    async def ask(self, question: str, timings: StageTimings | None = None) -> ChatAnswer:
+        timings = timings if timings is not None else StageTimings()
+        with timings.measure("cache"):
+            cached = self._cache.get(question) if self._cache else None
+        answer = cached or await self._answer(question, timings)
         if self._cache and not cached and answer.status in _CACHEABLE:
             self._cache.put(question, answer)
         logger.info(
-            "chat status=%s cached=%s latency_ms=%d cypher=%r",
+            "chat status=%s cached=%s total_ms=%.0f %s cypher=%r",
             answer.status.value,
             cached is not None,
-            (time.perf_counter() - started) * 1000,
+            timings.total_ms(),
+            timings.as_log(),
             answer.cypher,
         )
         return answer
 
-    async def _answer(self, question: str) -> ChatAnswer:
-        completion = await self._llm.complete(system=prompts.CYPHER_SYSTEM, prompt=prompts.cypher_prompt(question))
+    async def _answer(self, question: str, timings: StageTimings) -> ChatAnswer:
+        with timings.measure("llm_cypher"):
+            completion = await self._llm.complete(system=prompts.CYPHER_SYSTEM, prompt=prompts.cypher_prompt(question))
         cypher = prompts.parse_cypher_completion(completion)
         if cypher is None:
             return ChatAnswer(ChatStatus.OFF_TOPIC, OFF_TOPIC_REPLY)
 
-        outcome = await self._query_with_repair(question, cypher)
+        outcome = await self._query_with_repair(question, cypher, timings)
         if isinstance(outcome, ChatAnswer):
             return outcome
         safe, result = outcome
@@ -80,13 +83,16 @@ class ChatService:
             return ChatAnswer(ChatStatus.NO_RESULTS, NO_RESULTS_REPLY, safe.text)
 
         rows = result.rows[: self._settings.max_answer_rows]
-        text = await self._llm.complete(
-            system=prompts.ANSWER_SYSTEM,
-            prompt=prompts.answer_prompt(question, rows, max_chars=self._settings.max_answer_chars),
-        )
+        with timings.measure("llm_answer"):
+            text = await self._llm.complete(
+                system=prompts.ANSWER_SYSTEM,
+                prompt=prompts.answer_prompt(question, rows, max_chars=self._settings.max_answer_chars),
+            )
         return ChatAnswer(ChatStatus.ANSWERED, text.strip(), safe.text, result.subgraph)
 
-    async def _query_with_repair(self, question: str, cypher: str) -> tuple[SafeCypher, QueryResult] | ChatAnswer:
+    async def _query_with_repair(
+        self, question: str, cypher: str, timings: StageTimings
+    ) -> tuple[SafeCypher, QueryResult] | ChatAnswer:
         """Guard and run the query. On a database error, ask the model to fix it (bounded retries).
 
         Guard rejections are never sent back for repair: we don't coach the model past the guard.
@@ -99,17 +105,20 @@ class ChatService:
                 return ChatAnswer(ChatStatus.REFUSED, REFUSED_REPLY)
 
             try:
-                return safe, await self._repository.run_read(safe)
+                with timings.measure("db"):
+                    result = await self._repository.run_read(safe)
+                return safe, result
             except QueryTimeoutError:
                 return ChatAnswer(ChatStatus.FAILED, TIMEOUT_REPLY, safe.text)
             except QueryExecutionError as exc:
                 logger.info("chat query failed attempt=%d error=%s", attempt, exc)
                 if attempt == self._settings.max_repair_attempts:
                     return ChatAnswer(ChatStatus.FAILED, FAILED_REPLY, safe.text)
-                completion = await self._llm.complete(
-                    system=prompts.CYPHER_SYSTEM,
-                    prompt=prompts.repair_prompt(question, safe.text, str(exc)),
-                )
+                with timings.measure("llm_repair"):
+                    completion = await self._llm.complete(
+                        system=prompts.CYPHER_SYSTEM,
+                        prompt=prompts.repair_prompt(question, safe.text, str(exc)),
+                    )
                 repaired = prompts.parse_cypher_completion(completion)
                 if repaired is None:
                     return ChatAnswer(ChatStatus.FAILED, FAILED_REPLY, safe.text)

@@ -85,6 +85,8 @@ def test_chat_contract():
     assert [n["id"] for n in body["nodes"]] == ["sanchit", "giteq"]
     assert body["edges"][0]["id"] == "sanchit-BUILT-giteq"
     assert llm.calls[0][1] == "Question: What did you build?\nCypher:"  # whitespace normalised
+    stages = [part.split(";")[0] for part in response.headers["server-timing"].split(", ")]
+    assert stages == ["cache", "llm_cypher", "db", "llm_answer"]
 
 
 @pytest.mark.parametrize(

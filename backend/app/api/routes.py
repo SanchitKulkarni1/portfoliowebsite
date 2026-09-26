@@ -8,6 +8,7 @@ from app.api.dependencies import enforce_chat_rate_limit, get_chat_service, get_
 from app.api.schemas import ChatRequest, ChatResponse, ErrorResponse, GraphOut, HealthResponse, ReadinessResponse
 from app.services.chat_service import ChatService
 from app.services.graph_service import GraphService
+from app.services.timing import StageTimings
 
 health_router = APIRouter(tags=["health"])
 api_router = APIRouter(prefix="/api/v1", tags=["career-graph"])
@@ -48,5 +49,10 @@ async def get_graph(graph: GraphService = Depends(get_graph_service)) -> GraphOu
     dependencies=[Depends(enforce_chat_rate_limit)],
     summary="Ask a question about Sanchit's career",
 )
-async def chat(body: ChatRequest, chat_service: ChatService = Depends(get_chat_service)) -> ChatResponse:
-    return ChatResponse.from_domain(await chat_service.ask(body.question))
+async def chat(
+    body: ChatRequest, response: Response, chat_service: ChatService = Depends(get_chat_service)
+) -> ChatResponse:
+    timings = StageTimings()
+    answer = await chat_service.ask(body.question, timings)
+    response.headers["Server-Timing"] = timings.as_server_timing()
+    return ChatResponse.from_domain(answer)
