@@ -2,14 +2,21 @@
 
 from __future__ import annotations
 
+import asyncio
+import logging
+
 from google import genai
 from google.genai import errors as genai_errors
 from google.genai import types
 
 from app.domain.errors import LanguageModelBusyError, LanguageModelError
 
+logger = logging.getLogger(__name__)
+
 # Quota exhausted (429) or model overloaded (503): transient, worth retrying later.
 _BUSY_STATUS_CODES = frozenset({429, 503})
+# Server-side hiccups (5xx other than overload) and transport errors get one quick retry.
+_RETRY_DELAY_SECONDS = 0.8
 
 
 class GeminiLanguageModel:
@@ -22,6 +29,16 @@ class GeminiLanguageModel:
         self._temperature = temperature
 
     async def complete(self, *, system: str, prompt: str) -> str:
+        try:
+            return await self._generate(system, prompt)
+        except LanguageModelBusyError:
+            raise
+        except LanguageModelError as first:
+            logger.warning("Gemini call failed, retrying once: %s", first)
+            await asyncio.sleep(_RETRY_DELAY_SECONDS)
+            return await self._generate(system, prompt)
+
+    async def _generate(self, system: str, prompt: str) -> str:
         try:
             response = await self._client.aio.models.generate_content(
                 model=self._model,
