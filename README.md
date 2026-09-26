@@ -37,6 +37,6 @@ The site works without the backend. The graph renders from the bundled dataset a
 | Root directory | `frontend` | `backend` |
 | Build | `npm run build` (output `dist`) | `pip install -r requirements.txt` |
 | Start | (static) | `uvicorn app.main:create_app --factory --host 0.0.0.0 --port $PORT --proxy-headers --forwarded-allow-ips='*'` |
-| Env vars | `VITE_CAREER_GRAPH_API_URL` | `NEO4J_URI`, `NEO4J_USER`, `NEO4J_PASSWORD`, `NEO4J_DATABASE`, `GOOGLE_API_KEY`, `ALLOWED_ORIGINS`, `PYTHON_VERSION=3.11.9` |
+| Env vars | `VITE_CAREER_GRAPH_API_URL` | `NEO4J_URI`, `NEO4J_USER`, `NEO4J_PASSWORD`, `NEO4J_DATABASE`, `GOOGLE_API_KEY`, `ALLOWED_ORIGINS`, `ALLOWED_ORIGIN_REGEX`, `PYTHON_VERSION=3.11.9` |
 
 On Vercel, keep **"Include files outside the root directory"** enabled: the frontend imports `../backend/data/career_graph.json` at build time.

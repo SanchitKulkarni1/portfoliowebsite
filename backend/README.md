@@ -136,13 +136,13 @@ On top of that:
 - Rate limiting per client IP (default 10 questions / 10 min).
 - An in-memory answer cache (1 hour, 500 entries). Repeat questions, such as the suggested prompts, cost no LLM quota. Failed answers are never cached.
 - A 300-character cap on questions.
-- CORS restricted to known origins.
+- CORS restricted to known origins (an exact list plus an optional regex).
 - The answer prompt treats query results as data, not instructions.
 - Internal error details are logged, never returned to the client.
 
 ## The graph
 
-`data/career_graph.json` is the source of truth. It's built from the resume and the project READMEs, and holds 94 nodes and 214 relationships:
+`data/career_graph.json` is the source of truth. It's built from the resume and the project READMEs, and holds 94 nodes and 233 relationships:
 
 ```
 (:Person)-[:HELD]->(:Role)-[:AT_COMPANY]->(:Company)
@@ -150,6 +150,7 @@ On top of that:
 (:Project)-[:FOR_CLIENT]->(:Company)          (freelance work)
 (:Project|Role)-[:USES]->(:Skill)
 (:Person)-[:STUDIED_AT]->(:Education)
+(:Role|Project)-[:DURING_STUDIES]->(:Education)   (college years)
 ```
 
 Tests enforce that every skill is backed by at least one project or role, and that every project is linked to Sanchit.
@@ -195,7 +196,7 @@ Unit tests replace the two ports with in-memory fakes (`tests/fakes.py`). Integr
 `render.yaml` at the repo root is a Render Blueprint for this service.
 1. Render → **New → Blueprint** → pick this repo.
 2. Set the secrets: `NEO4J_URI`, `NEO4J_PASSWORD`, `GOOGLE_API_KEY`.
-3. Set `ALLOWED_ORIGINS` to the portfolio's real URL.
+3. Set `ALLOWED_ORIGINS` to the portfolio's real URL. Vercel preview URLs change per deploy, so `ALLOWED_ORIGIN_REGEX` (a full-match regex) covers those.
 4. Seed Aura once from your machine: `python -m scripts.seed`.
 
 **LLM quota.** The default model is `gemini-3.5-flash-lite`, which allows 15 requests/min on Gemini's free tier. Each question costs 2 LLM calls, or 0 when it's served from cache, so that's roughly 7 new questions a minute across the whole site. `gemini-2.5-flash` only allows 5/min. For real traffic, enable billing on the Google AI project; paid-tier limits are far higher and flash-lite costs fractions of a cent per question. `GEMINI_MODEL` overrides the model.

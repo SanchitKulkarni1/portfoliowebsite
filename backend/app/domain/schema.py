@@ -57,6 +57,13 @@ RELATIONSHIP_TYPES: tuple[RelationshipType, ...] = (
     RelationshipType("USES", "Role", "Skill", "The role involved this skill."),
     RelationshipType("FOR_CLIENT", "Project", "Company", "The client a freelance project was built for."),
     RelationshipType("STUDIED_AT", "Person", "Education", "Sanchit studied here."),
+    RelationshipType(
+        "DURING_STUDIES",
+        "Role",
+        "Education",
+        "Held while studying here (college leadership, internships, early roles).",
+    ),
+    RelationshipType("DURING_STUDIES", "Project", "Education", "Built while studying here."),
 )
 
 NODE_LABELS: frozenset[str] = frozenset(t.label for t in NODE_TYPES)
