@@ -16,7 +16,7 @@ export function Contact() {
       <div ref={ref} className="reveal page-container text-center">
         <p className="font-mono text-xs uppercase tracking-[0.3em] text-brand">04 / Contact</p>
         <h2 className="mx-auto mt-6 max-w-4xl font-display text-5xl font-bold leading-[0.95] tracking-tighter sm:text-7xl">
-          Have a problem worth automating?
+          Have a problem worth solving?
         </h2>
         <p className="mx-auto mt-6 max-w-xl text-lg text-neutral-400">
           I'm open to AI engineering and architecture roles, and to freelance builds that need to actually ship.
