@@ -1,5 +1,5 @@
 /** Turns the bundled career graph into nodes/links for the KnowledgeGraph component. */
-import type { GraphLink, GraphNode } from "@/components/ui/knowledge-graph";
+import type { GraphHighlight, GraphLink, GraphNode } from "@/components/ui/knowledge-graph";
 import { graphSnapshot, skills, type NodeLabel } from "@/data/careerGraph";
 
 export const labelColor: Record<NodeLabel, string> = {
@@ -34,3 +34,19 @@ export const graphLinks: GraphLink[] = graphSnapshot.relationships.map((r) => ({
 }));
 
 export const graphLegend = (Object.keys(labelColor) as NodeLabel[]).map((type) => ({ type, color: labelColor[type] }));
+
+/** A node plus everything directly connected to it, and the edges that connect them. */
+export function neighbourhood(nodeId: string): GraphHighlight {
+  const nodeIds = new Set([nodeId]);
+  const edgeIds = new Set<string>();
+  for (const link of graphLinks) {
+    const source = link.source as string;
+    const target = link.target as string;
+    if (source === nodeId || target === nodeId) {
+      nodeIds.add(source);
+      nodeIds.add(target);
+      edgeIds.add(link.id);
+    }
+  }
+  return { nodeIds, edgeIds };
+}

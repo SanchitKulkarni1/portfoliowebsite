@@ -5,7 +5,7 @@ import { SiteNav } from "@/components/layout/SiteNav";
 import { KnowledgeGraph, type GraphHighlight, type GraphNode, type KnowledgeGraphHandle } from "@/components/ui/knowledge-graph";
 import { graphStats, type GraphNodeRecord } from "@/data/careerGraph";
 import { CareerChat } from "@/features/career-chat/CareerChat";
-import { graphLegend, graphLinks, graphNodes } from "@/features/career-chat/graphModel";
+import { graphLegend, graphLinks, graphNodes, neighbourhood } from "@/features/career-chat/graphModel";
 import { useCareerChat, type ChatMessage } from "@/features/career-chat/useCareerChat";
 
 const HIDDEN_PROPS = new Set(["label", "id", "name"]);
@@ -73,10 +73,11 @@ export default function CareerGraph() {
     }
   }, [params, chat, setParams]);
 
-  const highlight = useMemo<GraphHighlight | null>(
-    () => (focused ? { nodeIds: new Set(focused.nodeIds), edgeIds: new Set(focused.edgeIds) } : null),
-    [focused],
-  );
+  // A selected node shows its connections; otherwise the latest answer's subgraph is highlighted.
+  const highlight = useMemo<GraphHighlight | null>(() => {
+    if (selected) return neighbourhood(selected.id);
+    return focused ? { nodeIds: new Set(focused.nodeIds), edgeIds: new Set(focused.edgeIds) } : null;
+  }, [selected, focused]);
 
   const askAbout = (question: string) => {
     setSelected(null);
@@ -97,10 +98,13 @@ export default function CareerGraph() {
             </p>
           </div>
           <div className="absolute bottom-3 right-3 z-10 flex gap-2">
-            {focused && (
+            {(focused || selected) && (
               <button
                 type="button"
-                onClick={() => setFocused(null)}
+                onClick={() => {
+                  setSelected(null);
+                  setFocused(null);
+                }}
                 className="rounded-lg border border-white/10 bg-black/70 px-2.5 py-1.5 font-mono text-[11px] text-neutral-300 backdrop-blur-sm hover:text-white"
               >
                 clear highlight
@@ -123,6 +127,7 @@ export default function CareerGraph() {
             highlight={highlight}
             selectedId={selected?.id}
             onNodeClick={setSelected}
+            onBackgroundClick={() => setSelected(null)}
             legend={graphLegend}
           />
           {selected && <NodeCard node={selected} onAsk={askAbout} onClose={() => setSelected(null)} />}
