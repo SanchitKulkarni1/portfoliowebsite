@@ -9,11 +9,11 @@ export function About() {
   const marquee = skills.slice(0, 18).map((s) => s.name);
 
   return (
-    <section id="about" className="relative scroll-mt-16 py-28 sm:py-36">
-      <div className="mx-auto max-w-6xl px-5 sm:px-8">
+    <section id="about" className="relative scroll-mt-16 py-20 sm:py-28 lg:py-36">
+      <div className="page-container">
         <SectionHeading index="01" kicker="About" title="I turn messy operational problems into AI systems that ship." />
 
-        <div ref={ref} className="reveal grid gap-12 lg:grid-cols-[1.4fr_1fr]">
+        <div ref={ref} className="reveal grid gap-12 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)] lg:gap-16">
           <div className="space-y-6 text-lg leading-relaxed text-neutral-300">
             {profile.about.map((paragraph) => (
               <p key={paragraph.slice(0, 24)}>{paragraph}</p>

@@ -9,9 +9,10 @@ interface ProjectCardProps {
   project: Project;
   featured?: boolean;
   maxSkills?: number;
+  className?: string;
 }
 
-export function ProjectCard({ project, featured = false, maxSkills = featured ? 10 : 5 }: ProjectCardProps) {
+export function ProjectCard({ project, featured = false, maxSkills = featured ? 10 : 5, className }: ProjectCardProps) {
   const extraSkills = project.skills.length - maxSkills;
 
   return (
@@ -19,20 +20,18 @@ export function ProjectCard({ project, featured = false, maxSkills = featured ? 
       className={cn(
         "group relative flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-card p-6 transition-colors hover:border-brand/40",
         featured && "sm:p-8",
+        className,
       )}
     >
       <div className="pointer-events-none absolute -right-24 -top-24 h-48 w-48 rounded-full bg-brand/0 blur-3xl transition-colors duration-500 group-hover:bg-brand/10" />
 
-      <div className="flex flex-wrap items-center gap-2 font-mono text-[11px] uppercase tracking-widest text-muted-foreground">
-        <span className="text-brand">{kindLabel[project.kind]}</span>
-        <span>·</span>
-        <span>{project.year}</span>
-        {project.clientName && (
-          <>
-            <span>·</span>
-            <span className="normal-case tracking-normal">for {project.clientName}</span>
-          </>
-        )}
+      <div className="font-mono text-[11px] uppercase tracking-widest text-muted-foreground">
+        <p className="flex items-center gap-2">
+          <span className="text-brand">{kindLabel[project.kind]}</span>
+          <span>·</span>
+          <span>{project.year}</span>
+        </p>
+        {project.clientName && <p className="mt-1 normal-case tracking-normal">for {project.clientName}</p>}
       </div>
 
       <h3 className={cn("mt-3 font-display font-bold tracking-tight", featured ? "text-2xl sm:text-3xl" : "text-xl")}>

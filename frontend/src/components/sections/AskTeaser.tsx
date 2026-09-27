@@ -9,7 +9,7 @@ export function AskTeaser() {
   const ref = useReveal<HTMLDivElement>();
   return (
     <section className="py-20">
-      <div className="mx-auto max-w-6xl px-5 sm:px-8">
+      <div className="page-container">
         <div
           ref={ref}
           className="reveal relative overflow-hidden rounded-3xl border border-brand/25 bg-gradient-to-br from-brand/[0.08] via-card to-card p-8 sm:p-12"

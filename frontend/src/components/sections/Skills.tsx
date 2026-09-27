@@ -8,11 +8,11 @@ const order: SkillCategory[] = ["AI/ML", "Backend", "Data", "Frontend", "Cloud &
 export function Skills() {
   const grouped = skillsByCategory();
   const maxUsage = Math.max(...[...grouped.values()].flat().map((s) => s.usage));
-  const ref = useReveal<HTMLDivElement>(0.05);
+  const ref = useReveal<HTMLDivElement>();
 
   return (
-    <section id="skills" className="scroll-mt-16 py-28 sm:py-36">
-      <div className="mx-auto max-w-6xl px-5 sm:px-8">
+    <section id="skills" className="scroll-mt-16 py-20 sm:py-28 lg:py-36">
+      <div className="page-container">
         <SectionHeading
           index="03"
           kicker="Skills"

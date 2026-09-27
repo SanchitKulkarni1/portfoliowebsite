@@ -22,7 +22,7 @@ export function Hero() {
     <section id="top" className="relative flex min-h-[100svh] flex-col overflow-hidden bg-background">
       <div className="pointer-events-none absolute inset-0 bg-grid [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_75%)]" />
 
-      <div className="container relative flex flex-1 items-center pb-16 pt-24 lg:pb-12">
+      <div className="page-container relative flex flex-1 items-center pb-16 pt-24 lg:pb-12">
         <div className="grid w-full items-center gap-10 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,0.85fr)] lg:gap-12">
           <div className="flex flex-col items-center gap-8 text-center lg:items-start lg:text-left">
             <h1 className="sr-only">

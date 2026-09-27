@@ -118,7 +118,11 @@ export const KnowledgeGraph = forwardRef<KnowledgeGraphHandle, KnowledgeGraphPro
         )
         .force("charge", d3.forceManyBody<GraphNode>().strength((d) => -60 - (d.size ?? 10) * 12))
         .force("center", d3.forceCenter(width / 2, height / 2))
-        .force("collision", d3.forceCollide<GraphNode>().radius((d) => (d.size ?? 10) + 6));
+        .force(
+          "collision",
+          // Labelled nodes get extra room so their text isn't buried under neighbours.
+          d3.forceCollide<GraphNode>().radius((d) => (d.size ?? 10) + ((d.size ?? 10) >= LABEL_ALWAYS_SIZE ? 22 : 6)),
+        );
 
       const link = g
         .append("g")
@@ -186,6 +190,9 @@ export const KnowledgeGraph = forwardRef<KnowledgeGraphHandle, KnowledgeGraphPro
         .attr("pointer-events", "none")
         .attr("opacity", (d) => ((d.size ?? 10) >= LABEL_ALWAYS_SIZE ? 1 : 0))
         .text((d) => d.label);
+
+      // Draw labelled nodes last so their labels sit on top of other nodes.
+      nodeGroup.filter((d) => (d.size ?? 10) >= LABEL_ALWAYS_SIZE).raise();
 
       nodeGroup
         .on("click", (_event, d) => onClickRef.current?.(d))
