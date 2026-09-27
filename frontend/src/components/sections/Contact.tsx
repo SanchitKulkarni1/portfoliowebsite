@@ -12,8 +12,8 @@ export function Contact() {
   ];
 
   return (
-    <section id="contact" className="scroll-mt-16 border-t border-white/5 py-28 sm:py-36">
-      <div ref={ref} className="reveal mx-auto max-w-6xl px-5 text-center sm:px-8">
+    <section id="contact" className="scroll-mt-16 border-t border-white/5 py-20 sm:py-28 lg:py-36">
+      <div ref={ref} className="reveal page-container text-center">
         <p className="font-mono text-xs uppercase tracking-[0.3em] text-brand">04 / Contact</p>
         <h2 className="mx-auto mt-6 max-w-4xl font-display text-5xl font-bold leading-[0.95] tracking-tighter sm:text-7xl">
           Have a problem worth automating?

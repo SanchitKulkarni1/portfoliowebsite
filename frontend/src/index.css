@@ -92,6 +92,13 @@
   }
 }
 
+/* One container for every section, the nav and the footer, so all left edges line up. */
+@layer components {
+  .page-container {
+    @apply mx-auto w-full max-w-7xl px-5 sm:px-8;
+  }
+}
+
 /* Scroll-reveal: elements start hidden and fade up once .is-visible is added (see useReveal). */
 .reveal {
   opacity: 0;

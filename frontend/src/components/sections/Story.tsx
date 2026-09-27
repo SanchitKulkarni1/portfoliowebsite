@@ -6,7 +6,7 @@ import { projectById } from "@/data/careerGraph";
 import { useReveal } from "@/hooks/useReveal";
 
 function ChapterBlock({ chapter, index }: { chapter: Chapter; index: number }) {
-  const ref = useReveal<HTMLDivElement>(0.08);
+  const ref = useReveal<HTMLDivElement>();
   const [lead, ...rest] = chapter.projectIds.map(projectById);
   const spotlight = chapter.spotlight && projectById(chapter.spotlight.projectId);
 
@@ -25,8 +25,13 @@ function ChapterBlock({ chapter, index }: { chapter: Chapter; index: number }) {
         <ProjectCard project={lead} featured />
         {rest.length > 0 && (
           <div className="grid gap-4 sm:grid-cols-2">
-            {rest.map((project) => (
-              <ProjectCard key={project.id} project={project} />
+            {rest.map((project, i) => (
+              <ProjectCard
+                key={project.id}
+                project={project}
+                // An odd card out spans the row instead of leaving a hole beside it.
+                className={rest.length % 2 === 1 && i === rest.length - 1 ? "sm:col-span-2" : undefined}
+              />
             ))}
           </div>
         )}
@@ -48,8 +53,8 @@ function ChapterBlock({ chapter, index }: { chapter: Chapter; index: number }) {
 
 export function Story() {
   return (
-    <section id="story" className="scroll-mt-16 py-28 sm:py-36">
-      <div className="mx-auto max-w-6xl px-5 sm:px-8">
+    <section id="story" className="scroll-mt-16 py-20 sm:py-28 lg:py-36">
+      <div className="page-container">
         <SectionHeading
           index="02"
           kicker="The story"

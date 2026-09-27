@@ -13,8 +13,11 @@ const menuItems = [
   { label: "Contact", href: "/#contact" },
 ];
 
-/** Fixed top bar from the 21st.dev hero: menu on the left, monogram in the middle, CTA on the right. */
-export function SiteNav() {
+/**
+ * Fixed top bar from the 21st.dev hero: menu on the left, monogram in the middle, CTA on the right.
+ * `fullWidth` lines it up with edge-to-edge layouts (the graph page) instead of the page container.
+ */
+export function SiteNav({ fullWidth = false }: { fullWidth?: boolean }) {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -48,7 +51,7 @@ export function SiteNav() {
         scrolled ? "border-b border-white/5 bg-background/80 backdrop-blur-md" : "bg-transparent",
       )}
     >
-      <nav className="mx-auto flex h-16 max-w-screen-2xl items-center justify-between px-4 sm:px-6">
+      <nav className={cn("flex h-16 items-center justify-between", fullWidth ? "px-3" : "page-container")}>
         <div ref={menuRef} className="relative">
           <button
             type="button"
