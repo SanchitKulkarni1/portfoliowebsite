@@ -1,6 +1,6 @@
 import { ChevronDown, Github, Linkedin, MapPin } from "lucide-react";
 import { BlurText } from "@/components/common/BlurText";
-import { DitherPortrait } from "@/components/ui/dither-portrait";
+import { Portrait } from "@/components/common/Portrait";
 import { profile } from "@/content/profile";
 
 // Line height must come after the size classes: tailwind-merge drops a leading-* that precedes a text-* size.
@@ -8,10 +8,10 @@ const nameClass =
   "whitespace-nowrap font-display font-bold uppercase tracking-tighter text-brand " +
   "justify-center text-[17vw] sm:text-[14vw] lg:justify-start lg:text-[118px] xl:text-[150px] leading-[0.9]";
 
-/** Giant name on the left, dithered portrait on the right (stacked on small screens). */
+/** Giant name on the left, portrait on the right (stacked on small screens). */
 export function Hero() {
   const portrait = (
-    <DitherPortrait
+    <Portrait
       src={profile.photo}
       alt={`${profile.firstName} ${profile.lastName}`}
       className="w-[min(72vw,300px)] sm:w-[320px] lg:w-full lg:max-w-[400px]"
