@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Menu, Network, X } from "lucide-react";
-import { profile } from "@/content/profile";
 import { cn } from "@/lib/utils";
 
 const menuItems = [
@@ -14,7 +13,7 @@ const menuItems = [
 ];
 
 /**
- * Fixed top bar from the 21st.dev hero: menu on the left, monogram in the middle, CTA on the right.
+ * Fixed top bar from the 21st.dev hero: menu on the left, CTA on the right.
  * `fullWidth` lines it up with edge-to-edge layouts (the graph page) instead of the page container.
  */
 export function SiteNav({ fullWidth = false }: { fullWidth?: boolean }) {
@@ -86,11 +85,6 @@ export function SiteNav({ fullWidth = false }: { fullWidth?: boolean }) {
             </div>
           )}
         </div>
-
-        <Link to="/" aria-label="Home" className="font-display text-2xl font-bold tracking-tighter">
-          {profile.firstName[0]}
-          <span className="text-brand">{profile.lastName[0]}</span>
-        </Link>
 
         <Link
           to="/graph"
