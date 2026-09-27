@@ -40,6 +40,8 @@ async def build_container(settings: Settings) -> Container:
         api_key=settings.google_api_key.get_secret_value(),
         model=settings.gemini_model,
         timeout_seconds=settings.llm_timeout_seconds,
+        attempt_timeout_seconds=settings.llm_attempt_timeout_seconds,
+        first_chunk_timeout_seconds=settings.llm_first_chunk_timeout_seconds,
     )
 
     async def close() -> None:

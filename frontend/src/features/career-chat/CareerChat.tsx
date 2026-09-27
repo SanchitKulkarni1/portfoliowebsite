@@ -80,8 +80,17 @@ function AssistantMessage({ message, focused, onFocus }: { message: ChatMessage;
           {meta.label}
         </span>
       )}
-      <RichText text={message.text} />
-      {message.streaming && <span className="ml-0.5 inline-block h-4 w-1.5 animate-pulse bg-brand align-middle" aria-hidden />}
+      {message.streaming && !message.text ? (
+        <p className="font-mono text-xs text-neutral-400">
+          <Loader2 className="mr-1.5 inline h-3.5 w-3.5 animate-spin text-brand" />
+          Writing the answer from {nodeCount} nodes…
+        </p>
+      ) : (
+        <RichText text={message.text} />
+      )}
+      {message.streaming && message.text && (
+        <span className="ml-0.5 inline-block h-4 w-1.5 animate-pulse bg-brand align-middle" aria-hidden />
+      )}
       {(message.cypher || nodeCount > 0) && (
         <div className="mt-3 space-y-2 border-t border-white/5 pt-3">
           {nodeCount > 0 && (
