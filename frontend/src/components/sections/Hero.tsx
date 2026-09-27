@@ -1,6 +1,6 @@
 import { ChevronDown, Github, Linkedin, MapPin } from "lucide-react";
 import { BlurText } from "@/components/common/BlurText";
-import { DitherPortrait } from "@/components/ui/dither-portrait";
+import { Portrait } from "@/components/common/Portrait";
 import { profile } from "@/content/profile";
 
 // Line height must come after the size classes: tailwind-merge drops a leading-* that precedes a text-* size.
@@ -8,10 +8,10 @@ const nameClass =
   "whitespace-nowrap font-display font-bold uppercase tracking-tighter text-brand " +
   "justify-center text-[17vw] sm:text-[14vw] lg:justify-start lg:text-[118px] xl:text-[150px] leading-[0.9]";
 
-/** Giant name on the left, dithered portrait on the right (stacked on small screens). */
+/** Giant name on the left, portrait on the right (stacked on small screens). */
 export function Hero() {
   const portrait = (
-    <DitherPortrait
+    <Portrait
       src={profile.photo}
       alt={`${profile.firstName} ${profile.lastName}`}
       className="w-[min(72vw,300px)] sm:w-[320px] lg:w-full lg:max-w-[400px]"
@@ -22,7 +22,7 @@ export function Hero() {
     <section id="top" className="relative flex min-h-[100svh] flex-col overflow-hidden bg-background">
       <div className="pointer-events-none absolute inset-0 bg-grid [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_75%)]" />
 
-      <div className="container relative flex flex-1 items-center pb-16 pt-24 lg:pb-12">
+      <div className="page-container relative flex flex-1 items-center pb-16 pt-24 lg:pb-12">
         <div className="grid w-full items-center gap-10 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,0.85fr)] lg:gap-12">
           <div className="flex flex-col items-center gap-8 text-center lg:items-start lg:text-left">
             <h1 className="sr-only">

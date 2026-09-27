@@ -1,7 +1,11 @@
 import { useEffect, useRef } from "react";
 
-/** Adds `is-visible` to the element the first time it scrolls into view (pairs with the `.reveal` class). */
-export function useReveal<T extends HTMLElement>(threshold = 0.15) {
+/**
+ * Adds `is-visible` to the element the first time it scrolls into view (pairs with the `.reveal` class).
+ * Triggers once any part of it is 12% above the bottom of the viewport. A ratio threshold would
+ * never fire for elements much taller than the screen, leaving them invisible.
+ */
+export function useReveal<T extends HTMLElement>() {
   const ref = useRef<T>(null);
 
   useEffect(() => {
@@ -14,11 +18,11 @@ export function useReveal<T extends HTMLElement>(threshold = 0.15) {
           observer.disconnect();
         }
       },
-      { threshold },
+      { threshold: 0, rootMargin: "0px 0px -12% 0px" },
     );
     observer.observe(el);
     return () => observer.disconnect();
-  }, [threshold]);
+  }, []);
 
   return ref;
 }
