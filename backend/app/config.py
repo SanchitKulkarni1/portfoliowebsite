@@ -32,6 +32,10 @@ class Settings(Neo4jSettings):
     google_api_key: SecretStr
     gemini_model: str = "gemini-3.5-flash-lite"  # 15 req/min on the free tier vs 5 for 2.5-flash
     llm_timeout_seconds: float = Field(30.0, gt=0)
+    # Per-attempt deadlines, so a stalled Gemini call is retried quickly instead of
+    # waiting out llm_timeout_seconds. Healthy calls usually take 0.5-2s, occasionally ~6s.
+    llm_attempt_timeout_seconds: float = Field(10.0, gt=0)
+    llm_first_chunk_timeout_seconds: float = Field(6.0, gt=0)
 
     # HTTP
     allowed_origins: Annotated[list[str], NoDecode] = ["http://localhost:8080"]
