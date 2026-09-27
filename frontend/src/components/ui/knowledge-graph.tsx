@@ -1,7 +1,7 @@
 /**
  * Force-directed knowledge graph. Adapted from 21st.dev "Knowledge Graph" (heygaia):
  * - dark canvas, colours per node type supplied by the caller
- * - `highlight` dims everything except the given nodes/edges and zooms to them,
+ * - `highlight` fades and blurs everything except the given nodes/edges and zooms to them,
  *   without restarting the simulation (a separate, cheap effect restyles the SVG)
  * - labels shown in full for large or highlighted nodes
  */
@@ -36,6 +36,8 @@ export interface KnowledgeGraphProps {
   highlight?: GraphHighlight | null;
   selectedId?: string | null;
   onNodeClick?: (node: GraphNode) => void;
+  /** Clicking empty canvas (not a node), e.g. to clear a selection. */
+  onBackgroundClick?: () => void;
   legend?: Array<{ type: string; color: string }>;
   className?: string;
 }
@@ -48,13 +50,15 @@ const LABEL_ALWAYS_SIZE = 16;
 const endpoint = (end: string | GraphNode) => (typeof end === "string" ? end : end.id);
 
 export const KnowledgeGraph = forwardRef<KnowledgeGraphHandle, KnowledgeGraphProps>(
-  ({ nodes, links, highlight, selectedId, onNodeClick, legend, className }, ref) => {
+  ({ nodes, links, highlight, selectedId, onNodeClick, onBackgroundClick, legend, className }, ref) => {
     const svgRef = useRef<SVGSVGElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const zoomRef = useRef<d3.ZoomBehavior<SVGSVGElement, unknown> | null>(null);
     const simNodesRef = useRef<GraphNode[]>([]);
     const onClickRef = useRef(onNodeClick);
     onClickRef.current = onNodeClick;
+    const onBackgroundRef = useRef(onBackgroundClick);
+    onBackgroundRef.current = onBackgroundClick;
     const [tooltip, setTooltip] = useState<{ x: number; y: number; text: string } | null>(null);
 
     const fitTo = (ids: ReadonlySet<string> | null, duration = 750) => {
@@ -105,6 +109,8 @@ export const KnowledgeGraph = forwardRef<KnowledgeGraphHandle, KnowledgeGraphPro
         });
       zoomRef.current = zoom;
       svg.call(zoom).on("dblclick.zoom", null);
+      // Nodes stop propagation, so this only fires for clicks on empty canvas (not drags: d3-zoom suppresses those).
+      svg.on("click", () => onBackgroundRef.current?.());
 
       const simulation = d3
         .forceSimulation<GraphNode>(simNodes)
@@ -195,7 +201,10 @@ export const KnowledgeGraph = forwardRef<KnowledgeGraphHandle, KnowledgeGraphPro
       nodeGroup.filter((d) => (d.size ?? 10) >= LABEL_ALWAYS_SIZE).raise();
 
       nodeGroup
-        .on("click", (_event, d) => onClickRef.current?.(d))
+        .on("click", (event: MouseEvent, d) => {
+          event.stopPropagation();
+          onClickRef.current?.(d);
+        })
         .on("mouseover", (event: MouseEvent, d) => {
           const [x, y] = d3.pointer(event, container);
           setTooltip({ x: x + 12, y: y - 12, text: `${d.label} · ${d.type}` });
@@ -225,16 +234,18 @@ export const KnowledgeGraph = forwardRef<KnowledgeGraphHandle, KnowledgeGraphPro
       const active = highlight && highlight.nodeIds.size > 0 ? highlight : null;
       const isOn = (id: string) => !active || active.nodeIds.has(id) || id === selectedId;
 
+      // Everything outside the highlight fades back and blurs, so the connected subgraph reads cleanly.
       svg
         .selectAll<SVGGElement, GraphNode>(".kg-node")
         .transition()
-        .duration(400)
-        .attr("opacity", (d) => (isOn(d.id) ? 1 : 0.12));
+        .duration(450)
+        .attr("opacity", (d) => (isOn(d.id) ? 1 : 0.15))
+        .style("filter", (d) => (isOn(d.id) ? "blur(0px)" : "blur(2.5px)"));
       svg
         .selectAll<SVGCircleElement, GraphNode>(".kg-halo")
         .transition()
         .duration(400)
-        .attr("opacity", (d) => ((active && active.nodeIds.has(d.id)) || d.id === selectedId ? 0.28 : 0));
+        .attr("opacity", (d) => (d.id === selectedId ? 0.45 : active && active.nodeIds.has(d.id) ? 0.28 : 0));
       svg
         .selectAll<SVGTextElement, GraphNode>(".kg-label")
         .transition()
@@ -250,7 +261,7 @@ export const KnowledgeGraph = forwardRef<KnowledgeGraphHandle, KnowledgeGraphPro
         .attr("stroke-opacity", (d) => {
           if (!active) return 0.12;
           if (active.edgeIds.has(d.id)) return 0.9;
-          return active.nodeIds.has(endpoint(d.source)) && active.nodeIds.has(endpoint(d.target)) ? 0.25 : 0.03;
+          return active.nodeIds.has(endpoint(d.source)) && active.nodeIds.has(endpoint(d.target)) ? 0.18 : 0.03;
         })
         .attr("stroke-width", (d) => (active?.edgeIds.has(d.id) ? 2 : 1.2));
 
