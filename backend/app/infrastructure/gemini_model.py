@@ -21,23 +21,48 @@ _RETRY_DELAY_SECONDS = 0.8
 
 
 class GeminiLanguageModel:
-    def __init__(self, *, api_key: str, model: str, timeout_seconds: float, temperature: float = 0.0) -> None:
+    """Gemini behind the LanguageModel port.
+
+    Requests occasionally stall with no response at all, so every attempt has its own
+    deadline, well under the HTTP timeout: a stalled call is abandoned and retried in
+    seconds instead of leaving the visitor waiting for the full HTTP timeout.
+    """
+
+    def __init__(
+        self,
+        *,
+        api_key: str,
+        model: str,
+        timeout_seconds: float,
+        attempt_timeout_seconds: float = 10.0,
+        first_chunk_timeout_seconds: float = 6.0,
+        temperature: float = 0.0,
+    ) -> None:
         self._client = genai.Client(
             api_key=api_key,
             http_options=types.HttpOptions(timeout=int(timeout_seconds * 1000)),
         )
         self._model = model
+        self._attempt_timeout = attempt_timeout_seconds
+        # Also the longest allowed gap between later chunks.
+        self._first_chunk_timeout = first_chunk_timeout_seconds
         self._temperature = temperature
 
     async def complete(self, *, system: str, prompt: str) -> str:
         try:
-            return await self._generate(system, prompt)
+            return await self._generate_with_deadline(system, prompt)
         except LanguageModelBusyError:
             raise
         except LanguageModelError as first:
             logger.warning("Gemini call failed, retrying once: %s", first)
             await asyncio.sleep(_RETRY_DELAY_SECONDS)
-            return await self._generate(system, prompt)
+            return await self._generate_with_deadline(system, prompt)
+
+    async def _generate_with_deadline(self, system: str, prompt: str) -> str:
+        try:
+            return await asyncio.wait_for(self._generate(system, prompt), self._attempt_timeout)
+        except TimeoutError as exc:
+            raise LanguageModelError(f"Gemini did not respond within {self._attempt_timeout:.0f}s") from exc
 
     async def stream(self, *, system: str, prompt: str) -> AsyncIterator[str]:
         # Same retry policy as complete(), but only while nothing has been sent on:
@@ -45,7 +70,7 @@ class GeminiLanguageModel:
         for attempt in range(2):
             started = False
             try:
-                async for text in self._generate_stream(system, prompt):
+                async for text in self._stream_with_deadlines(system, prompt):
                     started = True
                     yield text
                 if not started:
@@ -58,6 +83,22 @@ class GeminiLanguageModel:
                     raise
                 logger.warning("Gemini stream failed before any text, retrying once: %s", exc)
                 await asyncio.sleep(_RETRY_DELAY_SECONDS)
+
+    async def _stream_with_deadlines(self, system: str, prompt: str) -> AsyncIterator[str]:
+        chunks = self._generate_stream(system, prompt)
+        try:
+            while True:
+                try:
+                    chunk = await asyncio.wait_for(anext(chunks), self._first_chunk_timeout)
+                except StopAsyncIteration:
+                    return
+                except TimeoutError as exc:
+                    raise LanguageModelError(
+                        f"Gemini stream stalled: no text for {self._first_chunk_timeout:.0f}s"
+                    ) from exc
+                yield chunk
+        finally:
+            await chunks.aclose()
 
     def _config(self, system: str) -> types.GenerateContentConfig:
         return types.GenerateContentConfig(
