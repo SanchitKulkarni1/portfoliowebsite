@@ -1,5 +1,4 @@
 import { useState } from "react";
-import emailjs from "emailjs-com";
 import {
   Dialog,
   DialogContent,
@@ -14,14 +13,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
-
-
+import { sendContactMessage } from "@/lib/emailjs";
 
 interface ContactModalProps {
   trigger: React.ReactNode;
 }
 
 export default function ContactModal({ trigger }: ContactModalProps) {
+  const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [subject, setSubject] = useState("");
@@ -38,33 +37,24 @@ export default function ContactModal({ trigger }: ContactModalProps) {
     setLoading(true);
 
     try {
-      await emailjs.send(
-        "service_b6qtnrs",
-        "template_sgt77j6",
-        {
-          name: name,
-          email: email,
-          subject: subject,
-          message: message,
-        },
-        "BDKGclXuKIJJYSu3C"  //public key
-      );
+      await sendContactMessage({ name, email, subject, message });
 
       toast({ description: "✅ Message sent successfully!" });
       setName("");
       setEmail("");
       setSubject("");
       setMessage("");
+      setOpen(false);
     } catch (error) {
       console.error(error);
-      toast({ description: "❌ Failed to send message. Please try again." });
+      toast({ description: "❌ Couldn't send that. Please try again, or email me directly." });
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
@@ -79,7 +69,7 @@ export default function ContactModal({ trigger }: ContactModalProps) {
               <Label htmlFor="name">Name</Label>
               <Input
                 id="name"
-                placeholder="Sanchit Kulkarni"
+                placeholder="Your name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
               />
