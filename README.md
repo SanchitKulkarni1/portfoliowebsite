@@ -1,6 +1,45 @@
-# Sanchit Kulkarni · Portfolio
+# Sanchit Kulkarni · Portfolio + "Ask my career graph"
 
-My portfolio, plus a chatbot you can ask about my career. The chatbot answers from a Neo4j knowledge graph of my roles, projects and skills.
+**Live:** [sanchitkulkarni.vercel.app](https://sanchitkulkarni.vercel.app) · **Try the chatbot:** [/graph](https://sanchitkulkarni.vercel.app/graph)
+
+My portfolio site, with a GraphRAG chatbot you can ask about my career. Questions are turned into Cypher, run against a live Neo4j knowledge graph of my roles, projects and skills, and answered from the results. The nodes the answer used light up in an interactive graph.
+
+![Portfolio home page](docs/home.webp)
+
+![Asking the career graph "Which projects use LangGraph?"](docs/graph-chat.webp)
+
+## Highlights
+
+- **Real GraphRAG, not a mock-up.** Gemini writes a Cypher query from the graph schema, the backend runs it on Neo4j Aura, and a second call writes the answer from the rows that came back.
+- **Safe by construction.** A Cypher guard rejects anything that isn't a read-only query on known labels and relationships, enforces a `LIMIT`, and runs it in a read transaction with a timeout. `/chat` is rate-limited per IP.
+- **Fast.** Answers stream word by word over Server-Sent Events. The suggested questions are answered at startup and pinned in memory, so they return in about 0.4s. Each Gemini attempt has its own deadline, so a stalled call is retried instead of hanging.
+- **Explorable graph.** 94 nodes and 233 relationships drawn with d3. Click any node to focus its neighbourhood and blur the rest; chat answers do the same with the nodes they used.
+- **Clean backend.** FastAPI with domain / services / infrastructure / api layers and a single composition root. 130 tests, including one that enforces the layering rules.
+- **Observable.** Every answer carries a `Server-Timing` header broken down by stage (cache, Cypher generation, database, answer).
+
+## How a question is answered
+
+```mermaid
+flowchart LR
+    Q["Visitor question"] --> C{"Answer cache"}
+    C -- hit --> S["Stream answer (SSE)"]
+    C -- miss --> G1["Gemini: write Cypher"]
+    G1 --> V["Cypher guard<br/>read-only · whitelist · LIMIT"]
+    V --> N[("Neo4j Aura")]
+    N --> G2["Gemini: answer from rows"]
+    G2 --> S
+    N -. "nodes + edges" .-> UI["Graph highlights the result"]
+```
+
+## Stack
+
+| | |
+|---|---|
+| Frontend | React · TypeScript · Vite · Tailwind · shadcn/ui · d3-force · Vercel |
+| Backend | Python · FastAPI · Neo4j (async driver) · Google Gemini · Render |
+| Ops | GitHub Actions keep-warm ping · Vercel Analytics & Speed Insights · EmailJS contact form |
+
+## Repository layout
 
 ```
 .
